@@ -60,11 +60,16 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-        }
+            implementation(libs.voyager.navigator)        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            @OptIn(ExperimentalComposeLibrary::class)
-            implementation(libs.compose.uiTest)
+            implementation(libs.compose.uiTest)        }
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.robolectric)
+                implementation(libs.androidx.ui.test.junit4.android)
+            }
         }
     }
 }
