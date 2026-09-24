@@ -16,6 +16,7 @@ material3 = "1.12.0-alpha03"
 uiTestJunit4Android = "1.12.1"
 uiTestManifest = "1.12.1"
 voyager = "2.2.21-1.10.3"
+robolectric = "4.17"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -39,6 +40,7 @@ compose-uiTest = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "c
 androidx-ui-test-junit4-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

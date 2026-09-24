@@ -8,7 +8,7 @@ import com.example.cookingassistant.App
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class HomeScreenTest {
+class HomeScreenTest : BaseComposeTest() {
 
     @Test
     fun testNavigateToIngredientsScreenWorks() = runComposeUiTest {
