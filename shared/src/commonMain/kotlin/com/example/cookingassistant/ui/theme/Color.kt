@@ -1,5 +1,6 @@
 package com.example.cookingassistant.ui.theme
 
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 val LightGreen = Color(0xFFF1F8E9)

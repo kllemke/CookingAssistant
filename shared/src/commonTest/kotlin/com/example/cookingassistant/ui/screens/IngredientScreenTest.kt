@@ -5,20 +5,23 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.runComposeUiTest
+import cafe.adriel.voyager.navigator.Navigator
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class ZutatenScreenTest : BaseComposeTest() {
+class IngredientScreenTest : BaseComposeTest() {
 
     @Test
-    fun testZutatenInputWorks() = runComposeUiTest {
+    fun testIngredientInputWorks() = runComposeUiTest {
         var capturedText = ""
         
         setContent {
-            MaterialScreen(
-                initialText = "Tomaten",
-                onTextChange = { capturedText = it }
+            Navigator(
+                IngredientsScreen(
+                    initialText = "Tomaten",
+                    onTextChange = { capturedText = it }
+                )
             )
         }
 
