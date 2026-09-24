@@ -41,7 +41,8 @@ androidx-ui-test-junit4-android = { module = "androidx.compose.ui:ui-test-junit4
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
-
+compose-uiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4", version = "1.7.2" }
+compose-uiTestManifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.7.2" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
