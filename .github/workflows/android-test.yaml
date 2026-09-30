@@ -40,11 +40,20 @@ jobs:
       - name: Run Android host unit tests
         run: ./gradlew :shared:testAndroidHostTest
 
-      - name: Upload test results
+      - name: Upload HTML test report
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
-          name: android-host-test-results
+          name: android-host-test-html-report
+          path: shared/build/reports/tests/testAndroidHostTest/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload JUnit XML results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-host-test-junit-xml
           path: shared/build/test-results/**/TEST-*.xml
           if-no-files-found: warn
           retention-days: 14
