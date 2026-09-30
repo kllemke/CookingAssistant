@@ -2,9 +2,12 @@ name: Android Unit Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - '18/tests/add-pipeline-for-unit-tests'
   pull_request:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
