@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - '18/tests/add-pipeline-for-unit-tests'
   pull_request:
     branches:
       - main
