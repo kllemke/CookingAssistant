@@ -11,7 +11,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,12 +18,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.cookingassistant.di.LocalAppContainer
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
@@ -33,7 +34,13 @@ import org.jetbrains.compose.resources.painterResource
 data class IngredientsScreen(var initialText: String = "", val painter: Painter? = null, val onTextChange: (String) -> Unit = {}): Screen  {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val appContainer = LocalAppContainer.current
+
+        val screenModel = appContainer.recipeScreenModel
+
         var textState by remember { mutableStateOf(initialText) }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,10 +81,12 @@ data class IngredientsScreen(var initialText: String = "", val painter: Painter?
 
             Button(
                 onClick = {
-                    // Hier die Weiterleitung zur Rezeptliste hinzufügen.
-                    println("Gespeichert: $textState")
+                    val ingredients = textState.split("\n")
+                    screenModel.loadRecipes(ingredients)
+
+                    navigator.push(RecipeScreen())
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("save_button")
             ) {
                 Text(text = "Speichern")
             }
