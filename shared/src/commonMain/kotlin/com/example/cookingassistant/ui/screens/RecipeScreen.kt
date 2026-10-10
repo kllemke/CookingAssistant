@@ -15,11 +15,11 @@ class RecipeScreen: Screen {
         val appContainer = LocalAppContainer.current
 
         val screenModel = appContainer.recipeScreenModel
-        val recipes by screenModel.recipes.collectAsState()
+        val recipeUiState by screenModel.recipeUiState.collectAsState()
 
         // TODO: show list of recipes
         Text(
-            text = recipes.toString(),
+            text = recipeUiState.toString(),
             modifier = Modifier.testTag("recipe")
         )
     }

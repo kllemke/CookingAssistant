@@ -10,10 +10,11 @@ import io.ktor.client.request.parameter
 class RecipeApi(
     private val client: HttpClient
 ) {
+    val BASE_URL = "https://recipeapi.io/api/v1"
 
     suspend fun getRecipes(ingredients: List<String>): List<Recipe> {
         return client
-            .get("https://recipeapi.io/api/v1/recipes") {
+            .get("$BASE_URL/recipes") {
                 parameter("ingredients", ingredients.joinToString(","))
             }
             .body<RecipeResponse>()

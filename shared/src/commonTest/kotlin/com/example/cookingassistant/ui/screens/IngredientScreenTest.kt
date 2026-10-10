@@ -57,7 +57,7 @@ class IngredientScreenTest : BaseComposeTest() {
 
         everySuspend {
             repository.getRecipes(listOf("tomato", "potato"))
-        } returns emptyList()
+        } returns Result.success(emptyList())
 
         val container = AppContainer(repository)
 
