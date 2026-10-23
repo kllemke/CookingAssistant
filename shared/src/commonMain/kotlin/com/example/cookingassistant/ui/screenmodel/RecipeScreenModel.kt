@@ -24,7 +24,7 @@ class RecipeScreenModel(
     val recipeUiState: StateFlow<RecipeUiState> = _recipeUiState.asStateFlow()
 
     fun loadRecipes(ingredients: List<String>) {
-        if (ingredients.none { !it.isBlank() }) {
+        if (ingredients.all { it.isBlank() }) {
             _recipeUiState.value =
                 RecipeUiState.Error("Bitte gib mindestens eine Zutat ein")
             return

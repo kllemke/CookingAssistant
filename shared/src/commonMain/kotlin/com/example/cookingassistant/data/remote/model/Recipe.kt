@@ -2,20 +2,17 @@ package com.example.cookingassistant.data.remote.model
 
 import kotlinx.serialization.Serializable
 
+// API reference: https://spoonacular.com/food-api/docs
 @Serializable
 data class Recipe(
     val id: Int,
-    val name: String,
-    val description: String,
-    val difficulty: String,
-    val mealType: String,
-    val cuisine: String,
-    val dietaryTags: List<String>,
-    val servings: Int,
-    val prepTime: Int,
-    val cookTime: Int,
-    val caloriesPerServing: Int,
-    val protein: Int,
-    val instructions: List<String>,
-    val ingredients: List<Ingredient>
+    val image: String,
+    val imageType: String,
+    val likes: Int,
+    val missedIngredientCount: Int,
+    val missedIngredients: List<Ingredient>,
+    val title: String,
+    val unusedIngredients: List<Ingredient>,
+    val usedIngredientCount: Int,
+    val usedIngredients: List<Ingredient>
 )

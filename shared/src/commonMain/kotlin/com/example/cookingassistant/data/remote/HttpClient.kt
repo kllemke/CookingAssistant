@@ -6,20 +6,18 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
-import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNamingStrategy
 
-const val API_KEY = "sk_live_zxL0K87E7DnYyy2zTWyvnXN3IneknsQE32buWlUJ58a2c099"
+const val API_KEY = "6600a45668404f3cb4eceff6b794ac6a"
 
 @OptIn(ExperimentalSerializationApi::class)
 fun createHttpClient() = HttpClient {
     install(DefaultRequest) {
         header(
-            HttpHeaders.Authorization,
-            "Bearer $API_KEY"
+            "x-api-key",
+            API_KEY
         )
     }
 
@@ -27,7 +25,6 @@ fun createHttpClient() = HttpClient {
         json(
             Json {
                 ignoreUnknownKeys = true
-                namingStrategy = JsonNamingStrategy.SnakeCase
             }
         )
     }
