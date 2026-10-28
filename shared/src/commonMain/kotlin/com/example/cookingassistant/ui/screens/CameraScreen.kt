@@ -1,5 +1,6 @@
 package com.example.cookingassistant.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.ui.components.CameraView
 import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
@@ -34,9 +37,11 @@ class CameraScreen: Screen {
         // Workflow:
         // 1. Scan the area (launch camera view) (bounding boxes will display there later!)
         // 2. Take a picture
-//         3. Navigate to a Screen with Confirm (bounding boxes fixed), press on back for another try
+//         3. Navigate to another Screen with Confirm (bounding boxes fixed), press on back for another try
+        val navigator = LocalNavigator.currentOrThrow
 
         // MOCO's permission manager
+
         val factory = rememberPermissionsControllerFactory()
         val controller = remember(factory) {
             factory.createPermissionsController()
@@ -60,7 +65,11 @@ class CameraScreen: Screen {
             // Exhaustive cameraPermissionState Handling
             when (cameraPermissionState) {
                 PermissionState.Granted -> {
-                    CameraView()
+                    CameraView(
+                        onImageCaptured = {
+                            imagePath -> navigator.push(ImagePreviewScreen(imagePath = imagePath))
+                        }
+                    )
                 }
                 PermissionState.DeniedAlways -> {
                     // Send to app settings, when "Don't ask again" was selected

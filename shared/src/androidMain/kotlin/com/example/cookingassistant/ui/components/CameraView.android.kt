@@ -42,6 +42,7 @@ import java.io.File
 
 @Composable
 actual fun CameraView(
+    onImageCaptured: (String) -> Unit,
     modifier: Modifier
 ) {
     val context = LocalContext.current
@@ -115,7 +116,7 @@ actual fun CameraView(
                     // Take a photo
                     lifeCycleOwner.lifecycleScope.launch {
                         takePhoto(context, imageCapture, onImageCaptured = { uri ->
-                            Log.d("CameraView", "Photo captured at $uri")
+                            onImageCaptured(uri.toString())
                         })
                     }
                 }
