@@ -5,5 +5,6 @@ import androidx.compose.ui.Modifier
 
 @Composable
 expect fun CameraView(
+    onImageCaptured: (String) -> Unit,
     modifier: Modifier = Modifier
 )
