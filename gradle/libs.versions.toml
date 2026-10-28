@@ -24,6 +24,7 @@ androidx-concurrent-futures = "1.1.0"
 # What camera version do we need?
 #camerax = "1.6.2"
 mokoPermissions = "0.20.1"
+androidx-concurrent = "1.2.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -67,6 +68,9 @@ moko-permissions-camera = { module = "dev.icerock.moko:permissions-camera", vers
 moko-permissions-gallery = { module = "dev.icerock.moko:permissions-gallery", version.ref = "mokoPermissions" }
 moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "mokoPermissions" }
 moko-permissions-test = { module = "dev.icerock.moko:permissions-test", version.ref = "mokoPermissions" }
+androidx-concurrent-futures-ktx = { module = "androidx.concurrent:concurrent-futures-ktx", version.ref = "androidx-concurrent" }
+compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "composeMultiplatform" }
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeMultiplatform" }
 androidx-concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version.ref = "androidx-concurrent-futures" }
 mokkery-runtime = { module = "dev.mokkery:mokkery-runtime", version.ref = "mokkery" }
 

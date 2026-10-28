@@ -54,6 +54,10 @@ kotlin {
             implementation(libs.androidx.camera.camera2)
             implementation(libs.androidx.camera.video)
             implementation(libs.androidx.camera.extensions)
+
+            /// Concurrent Futures KTX (for .await() support)
+            implementation(libs.androidx.concurrent.futures.ktx)
+
             implementation(libs.ktor.client.android)
         }
         val androidHostTest by getting {
@@ -83,6 +87,7 @@ kotlin {
             implementation(libs.moko.permissions.camera)
             implementation(libs.moko.permissions.gallery)
             api(libs.moko.permissions.compose)
+            implementation(compose.materialIconsExtended)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
