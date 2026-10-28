@@ -6,6 +6,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,7 +21,14 @@ actual fun CameraView(
     val lifeCycleOwner = LocalLifecycleOwner.current
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+
+    // Camera use case
     val previewView = remember { PreviewView(context) }
+
+    LaunchedEffect(Unit){
+        val cameraProvider = cameraProviderFuture.get()
+        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    }
 
     AndroidView(
         factory = { previewView },
@@ -29,9 +37,7 @@ actual fun CameraView(
             val cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build()
             preview.setSurfaceProvider(previewView.surfaceProvider)
-            val cameraSelector =
-                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                    .build()
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             cameraProvider.bindToLifecycle(lifeCycleOwner, cameraSelector, preview)
         })
 }
