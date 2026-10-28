@@ -68,10 +68,17 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.voyager.navigator)        }
+            implementation(libs.voyager.navigator)
+            api(libs.moko.permissions)
+            implementation(libs.moko.permissions.camera)
+            implementation(libs.moko.permissions.gallery)
+            api(libs.moko.permissions.compose)
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation(libs.compose.uiTest)        }
+            implementation(libs.compose.uiTest)
+            implementation(libs.moko.permissions.test)
+        }
         getByName("androidHostTest") {
             dependencies {
                 implementation(libs.junit)
