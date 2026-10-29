@@ -75,11 +75,16 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.voyager.navigator)
+
+            // Permission handling
             api(libs.moko.permissions)
             implementation(libs.moko.permissions.camera)
             implementation(libs.moko.permissions.gallery)
             api(libs.moko.permissions.compose)
             implementation(compose.materialIconsExtended)
+
+            // Image rendering
+            implementation(libs.coil.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

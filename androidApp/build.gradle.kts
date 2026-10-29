@@ -28,6 +28,7 @@ dependencies {
     configurations.all {
         resolutionStrategy {
             force("androidx.concurrent:concurrent-futures:1.1.0")
+            force("com.google.errorprone:error_prone_annotations:2.30.0")
         }
     }
 }
