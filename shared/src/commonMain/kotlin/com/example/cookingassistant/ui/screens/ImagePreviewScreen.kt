@@ -20,12 +20,15 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
+import com.example.cookingassistant.di.LocalAppContainer
 
 // Pass imagePath in the constructor
 data class ImagePreviewScreen(val imagePath: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val appContainer = LocalAppContainer.current
+        val screenModel = appContainer.imagePreviewScreenModel
 
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -50,13 +53,16 @@ data class ImagePreviewScreen(val imagePath: String) : Screen {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 // Retake / Back Button
-                Button(onClick = { navigator.pop() }) {
+                Button(onClick = {
+                    navigator.pop()
+                    screenModel.removeDiscardedImage(imagePath)
+                }) {
                     Text("Retake")
                 }
 
                 // Confirm Button
                 Button(onClick = {
-                    // TODO: Proceed with confirmed photo
+                    // TODO: save `imagePath` to the local directory if needed
                 }) {
                     Text("Confirm")
                 }
