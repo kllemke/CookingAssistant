@@ -2,7 +2,7 @@ package com.example.cookingassistant.ui.components
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
+import io.github.oshai.kotlinlogging.KotlinLogging
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -40,6 +40,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import java.io.File
 
+private val logger = KotlinLogging.logger {}
+
 @Composable
 actual fun CameraView(
     onImageCaptured: (String) -> Unit,
@@ -75,7 +77,7 @@ actual fun CameraView(
         } catch (e: Exception) {
             // No need for capturing specific exceptions here
             // catching as such prevents the app from crashing
-            Log.e("CameraView", "Failed to bind CameraX: ${e.message}")
+            logger.error(e) { "Failed to bind CameraX: ${e.message}" }
             hasCameraError = true
         }
     }
@@ -86,9 +88,7 @@ actual fun CameraView(
             try {
                 cameraProviderFuture.get()?.unbindAll()
             } catch (e: Exception) {
-                Log.w(
-                    "CameraView", "Failed to unbind CameraX on dispose: ${e.message}"
-                )
+                logger.warn(e) { "Failed to unbind CameraX on dispose: ${e.message}" }
             }
         }
     }
@@ -137,28 +137,21 @@ private suspend fun takePhoto(
     imageCapture: ImageCapture,
     onImageCaptured: (Uri) -> Unit
 ) {
-    // ✅ ÄNDERUNG: Speichere im Cache-Verzeichnis statt im externen Medienverzeichnis.
-    // Das ist sicherer und erfordert keine speziellen Berechtigungen.
+    // Save photos taken in the local cache -> it's safer, no additional permissions needed
     val photoFile = File(
         context.cacheDir,
         "temp_${System.currentTimeMillis()}.jpg"
     )
 
     try {
-        // Nutze die eingebaute suspend-Funktion von CameraX
+        // OutputFileOptions configures the save destination and metadata
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCapture.takePicture(outputOptions) // Diese Funktion wartet, bis das Bild gespeichert ist
-
-        // Wenn die obige Zeile ohne Fehler durchläuft, ist das Bild gespeichert.
+        imageCapture.takePicture(outputOptions)
+        // Uri converts local File path into a universal file:// URI formatted string/object
         val savedUri = Uri.fromFile(photoFile)
         onImageCaptured(savedUri)
-
     } catch (exc: ImageCaptureException) {
-        Log.e("Camera", "Fotoaufnahme fehlgeschlagen: ${exc.message}", exc)
-        // Hier könntest du dem Nutzer eine Fehlermeldung anzeigen.
-        // Wichtig: Führe UI-Änderungen im Main-Thread aus
-        // withContext(Dispatchers.Main) {
-        //     Toast.makeText(context, "Fehler: ${exc.message}", Toast.LENGTH_SHORT).show()
-        // }
+        logger.error(exc) { "Taking photo failed: ${exc.message}" }
     }
+
 }
