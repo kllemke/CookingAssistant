@@ -24,11 +24,11 @@ dependencies {
     androidTestImplementation(libs.compose.uiTestJunit4)
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
 
-    configurations.all {
-        resolutionStrategy {
-            force("androidx.concurrent:concurrent-futures:1.1.0")
-        }
+configurations.all {
+    resolutionStrategy {
+        force(libs.androidx.concurrent.futures)
     }
 }
 
