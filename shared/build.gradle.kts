@@ -84,6 +84,9 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.voyager.navigator)
 
+            // Platform-independent File Management
+            implementation(libs.okio)
+
             // Permission handling
             api(libs.moko.permissions)
             implementation(libs.moko.permissions.camera)

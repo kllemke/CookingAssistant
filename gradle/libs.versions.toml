@@ -26,6 +26,7 @@ androidx-concurrent-futures = "1.1.0"
 mokoPermissions = "0.20.1"
 androidx-concurrent = "1.2.0"
 coil = "3.6.3"
+okio = "3.18.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -75,6 +76,7 @@ compose-material-icons-extended = { module = "org.jetbrains.compose.material:mat
 androidx-concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version.ref = "androidx-concurrent-futures" }
 mokkery-runtime = { module = "dev.mokkery:mokkery-runtime", version.ref = "mokkery" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+okio = {module = "com.squareup.okio:okio", version.ref = "okio" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
