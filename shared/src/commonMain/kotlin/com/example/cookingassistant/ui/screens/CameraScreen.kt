@@ -104,7 +104,7 @@ class CameraScreen: Screen {
                             }
                         }
                     ) {
-                        Text("Grant Permission")
+                        Text("Grant camera permission")
                     }
                 }
             }
