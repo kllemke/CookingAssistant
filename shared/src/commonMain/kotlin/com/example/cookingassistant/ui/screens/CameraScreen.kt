@@ -67,7 +67,9 @@ class CameraScreen: Screen {
                 PermissionState.Granted -> {
                     CameraView(
                         onImageCaptured = {
-                            imagePath -> navigator.push(ImagePreviewScreen(imagePath = imagePath))
+                            imagePath -> navigator.push(
+                            ImagePreviewScreen(imagePath = imagePath)
+                            )
                         }
                     )
                 }
