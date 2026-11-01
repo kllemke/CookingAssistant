@@ -87,6 +87,9 @@ kotlin {
             // Platform-independent File Management
             implementation(libs.okio)
 
+            // Logging
+            implementation(libs.kotlin.logging)
+
             // Permission handling
             api(libs.moko.permissions)
             implementation(libs.moko.permissions.camera)
