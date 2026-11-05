@@ -6,10 +6,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import cafe.adriel.voyager.core.screen.Screen
 import com.example.cookingassistant.di.LocalAppContainer
 
-class RecipeScreen: Screen {
+class RecipeScreen: AppScreen {
+    override val title: String = "Rezepte"
+    override val showBottomBar: Boolean = true
+
     @Composable
     override fun Content() {
         val appContainer = LocalAppContainer.current

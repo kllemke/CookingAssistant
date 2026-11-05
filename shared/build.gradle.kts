@@ -82,7 +82,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.voyager.navigator)
 
             // Platform-independent File Management
             implementation(libs.okio)

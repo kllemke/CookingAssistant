@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.di.LocalAppContainer
@@ -38,7 +37,13 @@ import cookingassistant.shared.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 
 
-data class IngredientsScreen(var initialText: String = "", val painter: Painter? = null, val onTextChange: (String) -> Unit = {}): Screen  {
+data class IngredientsScreen(
+    var initialText: String = "",
+    val painter: Painter? = null,
+    val onTextChange: (String) -> Unit = {}
+): AppScreen  {
+    override val title: String = "Zutaten bearbeiten"
+    override val showBottomBar: Boolean = true
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow

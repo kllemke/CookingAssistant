@@ -39,7 +39,10 @@ import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.launch
 
-class CameraScreen: Screen {
+class CameraScreen: AppScreen {
+    override val showBottomBar: Boolean = false
+    override val title: String? = null
+
     @Composable
     override fun Content() {
         // Workflow:
@@ -65,7 +68,6 @@ class CameraScreen: Screen {
 
         // Wrap the whole when-statement to center it
         Box(
-            modifier = Modifier.fillMaxSize(),
             modifier = Modifier
                 .fillMaxSize()
                 .testTag("take_picture"),

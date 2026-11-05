@@ -25,7 +25,10 @@ import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.add_photo
 import cookingassistant.shared.generated.resources.add_text
 
-class HomeScreen: Screen {
+class HomeScreen: AppScreen {
+    override val title: String = "Zutaten hinzufügen"
+    override val showBottomBar: Boolean = true
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow

@@ -1,6 +1,5 @@
 package com.example.cookingassistant.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,14 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.example.cookingassistant.di.LocalAppContainer
 
 // Pass imagePath in the constructor
-data class ImagePreviewScreen(val imagePath: String) : Screen {
+data class ImagePreviewScreen(val imagePath: String) : AppScreen {
+    override val showBottomBar: Boolean = false
+    override val title: String? = null
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
