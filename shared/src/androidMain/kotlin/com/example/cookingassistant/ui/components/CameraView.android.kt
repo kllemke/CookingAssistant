@@ -93,40 +93,45 @@ actual fun CameraView(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 10.dp)
+    ){
         // Alternative UI for when camera hardware fails
         if (hasCameraError) {
             Box(contentAlignment = Alignment.Center){
-                Text("Unable to open camera preview.")
+                Text("Kamera Fehler: Kamera konnte nicht initialisiert werden.")
             }
         } else {
-            // Camera Preview
-            AndroidView(
-                factory = { previewView },
-                modifier = Modifier.fillMaxSize(),
-            )
-            // Trigger button
-            IconButton(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 20.dp)
-                    .size(80.dp)
-                    .border(2.dp, Color.White, CircleShape),
-                onClick = {
-                    // Take a photo
-                    lifeCycleOwner.lifecycleScope.launch {
-                        takePhoto(context, imageCapture, onImageCaptured = { uri ->
-                            onImageCaptured(uri.toString())
-                        })
-                    }
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Camera,
-                    contentDescription = "take photo",
-                    tint = Color.White,
-                    modifier = Modifier.size(50.dp)
+            Box(modifier = Modifier.fillMaxSize()){
+                AndroidView(
+                    factory = { previewView },
+                    modifier = Modifier.fillMaxSize(),
                 )
+                // Trigger button
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 20.dp)
+                        .size(80.dp)
+                        .border(2.dp, Color.White, CircleShape),
+                    onClick = {
+                        // Take a photo
+                        lifeCycleOwner.lifecycleScope.launch {
+                            takePhoto(context, imageCapture, onImageCaptured = { uri ->
+                                onImageCaptured(uri.toString())
+                            })
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Camera,
+                        contentDescription = "take photo",
+                        tint = Color.White,
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
             }
         }
     }
@@ -153,5 +158,4 @@ private suspend fun takePhoto(
     } catch (exc: ImageCaptureException) {
         logger.error(exc) { "Taking photo failed: ${exc.message}" }
     }
-
 }
