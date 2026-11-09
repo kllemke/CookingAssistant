@@ -71,13 +71,6 @@ data class IngredientsScreen(
                 .testTag("enter_ingredients"),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Zutaten bearbeiten",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-
             painter?.let {
                 Image(
                     painter = it,

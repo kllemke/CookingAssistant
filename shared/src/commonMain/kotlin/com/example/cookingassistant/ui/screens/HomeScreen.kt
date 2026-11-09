@@ -45,12 +45,6 @@ class HomeScreen: AppScreen {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "Zutaten hinzufügen",
-                    fontSize = 30.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(10.dp))
                 HomeScreenButton(
                     text = "manuell eingeben",
                     icon = Res.drawable.add_text,

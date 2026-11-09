@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 
 class CameraScreen: AppScreen {
     override val showBottomBar: Boolean = false
-    override val title: String? = null
+    override val title: String = "Zutaten photographieren"
 
     @Composable
     override fun Content() {
@@ -89,23 +89,6 @@ class CameraScreen: AppScreen {
                     // Send to app settings when permission was permanently denied
                     // (iOS "Don't Allow" / Android "Don't ask again")
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.1f),
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .padding(vertical = 6.dp)
-                        ) {
-                            Text(
-                                text = "Zutaten photographieren",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
                         Text("Camera permission is required. Please enable it in Settings.")
                         Button(onClick = { controller.openAppSettings() }) {
                             Text("Open Settings")
