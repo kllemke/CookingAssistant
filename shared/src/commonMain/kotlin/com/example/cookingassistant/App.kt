@@ -1,6 +1,5 @@
 package com.example.cookingassistant
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -12,7 +11,7 @@ import com.example.cookingassistant.di.LocalAppContainer
 import com.example.cookingassistant.ui.components.ScreenBlueprint
 import com.example.cookingassistant.ui.screens.AppScreen
 import com.example.cookingassistant.ui.screens.HomeScreen
-import com.example.cookingassistant.ui.theme.GreenColorScheme
+import com.example.cookingassistant.ui.theme.CookingAssistantTheme
 
 @Composable
 @Preview
@@ -22,17 +21,15 @@ fun App() {
     }
 
     CompositionLocalProvider(
-        LocalAppContainer provides appContainer
-    ){
-        MaterialTheme(
-            colorScheme = GreenColorScheme
-        ) {
+        LocalAppContainer provides appContainer,
+    ) {
+        CookingAssistantTheme {
             Navigator(HomeScreen()) { navigator ->
                 val currentScreen = navigator.lastItem as? AppScreen
                 ScreenBlueprint(
                     title = currentScreen?.title,
                     showBottomBar = currentScreen?.showBottomBar ?: true,
-                    navigator = navigator
+                    navigator = navigator,
                 ) {
                     CurrentScreen()
                 }
