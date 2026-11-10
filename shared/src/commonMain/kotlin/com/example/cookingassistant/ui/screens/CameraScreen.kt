@@ -101,23 +101,6 @@ class CameraScreen: AppScreen {
                     // Permission not granted yet
                     // (Android initial state is Denied/NotGranted; iOS is NotDetermined)
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.1f),
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .padding(vertical = 6.dp)
-                        ) {
-                            Text(
-                                text = "Zutaten photographieren",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
                         Button(
                             onClick = {
                                 cameraManagementScope.launch {

@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
+import androidx.compose.foundation.layout.navigationBarsPadding
 
 
 @Composable
@@ -20,24 +21,30 @@ fun ScreenBlueprint(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    // TODO: how to regulate border in bottom bar, top bar other optional composables?
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 30.dp),
         topBar = {
             if (title != null) {
                 AppHeader(
                     title = title,
                     modifier = Modifier
                         .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
         },
         bottomBar = {
             if (showBottomBar && navigator != null) {
-                AppNavigationBar(navigator = navigator)
+                AppNavigationBar(
+                    navigator = navigator,
+                    modifier = Modifier.navigationBarsPadding()
+                )
             }
         }
     ) { innerPadding ->
+        // TODO: how to set something like justify content space between with vertical alignment and flex-direction column?
         // innerPadding automatically accounts for topBar and bottomBar!
         Box(
             modifier = Modifier

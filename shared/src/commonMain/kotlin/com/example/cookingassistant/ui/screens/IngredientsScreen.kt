@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +35,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.di.LocalAppContainer
 import com.example.cookingassistant.ui.screenmodel.RecipeUiState
+import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
@@ -67,7 +71,6 @@ data class IngredientsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .testTag("enter_ingredients"),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -89,7 +92,17 @@ data class IngredientsScreen(
                     onTextChange(it)
                 },
                 label = { Text("Zutaten eingeben") },
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8F).testTag("zutaten_input"),
+                shape = RoundedCornerShape(4.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8F)
+                    .testTag("zutaten_input"),
                 singleLine = false,
             )
 
@@ -118,7 +131,6 @@ data class IngredientsScreen(
                     else -> {}
                 }
             }
-
             Button(
                 onClick = {
                     val ingredients = textState.split("\n")
@@ -126,7 +138,15 @@ data class IngredientsScreen(
                     screenModel.loadRecipes(ingredients)
                     requestSent = true
                 },
-                modifier = Modifier.fillMaxWidth().testTag("save_button")
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+                shape = RoundedCornerShape(30.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimens.buttonHeight)
+                    .testTag("save_button")
             ) {
                 Text(text = "Speichern")
             }

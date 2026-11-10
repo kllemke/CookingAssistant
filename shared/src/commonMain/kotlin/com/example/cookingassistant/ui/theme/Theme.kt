@@ -15,6 +15,7 @@ val GreenColorScheme = lightColorScheme(
     onSurfaceVariant = DarkerGreen.copy(alpha = 0.7f), // Unselected icon & text
     secondaryContainer = Green, // Active pill background
     onSecondaryContainer = Color.White, // Icon inside active pill
+    outline = BorderGreen,
 )
 
 @Composable
@@ -24,6 +25,7 @@ fun CookingAssistantTheme(
     MaterialTheme(
         colorScheme = GreenColorScheme,
         typography = AppTypography,
+        shapes = AppShapes,
         content = content,
     )
 }

@@ -40,8 +40,7 @@ class HomeScreen: AppScreen {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.8f)
-                    .padding(10.dp),
+                    .fillMaxHeight(0.8f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -56,7 +55,7 @@ class HomeScreen: AppScreen {
                         .weight(1f)
                         .testTag("to_enter_manually")
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 HomeScreenButton(
                     text = "Foto aufnehmen",
                     icon = Res.drawable.add_photo,

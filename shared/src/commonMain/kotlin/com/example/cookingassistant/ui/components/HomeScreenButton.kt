@@ -21,12 +21,12 @@ fun HomeScreenButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card (
-        shape = RoundedCornerShape(8.dp),
+    Card(
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
-        border = BorderStroke(4.dp, MaterialTheme.colorScheme.secondary),
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
         onClick = onClick,
         modifier = modifier
     ) {
