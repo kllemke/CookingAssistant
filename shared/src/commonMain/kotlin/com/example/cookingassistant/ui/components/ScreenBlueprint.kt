@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
 import androidx.compose.foundation.layout.navigationBarsPadding
+import com.example.cookingassistant.ui.theme.Dimens
 
 
 @Composable
@@ -25,7 +25,7 @@ fun ScreenBlueprint(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 30.dp),
+            .padding(horizontal = Dimens.screenPadding),
         topBar = {
             if (title != null) {
                 AppHeader(
