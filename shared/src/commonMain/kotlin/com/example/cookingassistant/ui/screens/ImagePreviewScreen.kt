@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +17,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ui.components.PrimaryButton
+import com.example.cookingassistant.ui.components.SecondaryButton
+import com.example.cookingassistant.ui.theme.Dimens
 
 // Pass imagePath in the constructor
 data class ImagePreviewScreen(val imagePath: String) : AppScreen {
@@ -50,22 +51,28 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(Dimens.spacingMedium)
             ) {
                 // Retake / Back Button
-                Button(onClick = {
-                    navigator.pop()
-                    screenModel.removeDiscardedImage(imagePath)
-                }) {
-                    Text("Retake")
-                }
+                SecondaryButton(
+                    text = "Erneut",
+                    onClick = {
+                        navigator.pop()
+                        screenModel.removeDiscardedImage(imagePath)
+                    },
+                    modifier = Modifier.weight(1f),
+                    testTag = "image_preview_retake",
+                )
 
                 // Confirm Button
-                Button(onClick = {
-                    // TODO: save `imagePath` to the local directory if needed
-                }) {
-                    Text("Confirm")
-                }
+                PrimaryButton(
+                    text = "Bestätigen",
+                    onClick = {
+                        // TODO: save `imagePath` to the local directory if needed
+                    },
+                    modifier = Modifier.weight(1f),
+                    testTag = "image_preview_confirm",
+                )
             }
         }
     }
