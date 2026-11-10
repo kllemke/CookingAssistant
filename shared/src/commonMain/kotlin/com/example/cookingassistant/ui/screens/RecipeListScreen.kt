@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,21 +85,25 @@ class RecipeListScreen: Screen {
                         modifier = Modifier.weight(1f),
                     )
                 }
-                Column(
+                LazyColumn (
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
                         .testTag("recipes_list"),
                 ) {
                     if (state.allRecipes.isEmpty()) {
-                        Text("Keine Rezepte gefunden", color = Color.Gray)
+                        item {
+                            Text("Keine Rezepte gefunden", color = Color.Gray)
+                        }
                     } else if (visibleRecipes.isEmpty()) {
-                        Text("Keine Rezepte für diesen Filter", color = Color.Gray)
-                    }
-                    for (recipe in visibleRecipes) {
-                        RecipeListItem(recipe)
+                        item {
+                            Text("Keine Rezepte für diesen Filter", color = Color.Gray)
+                        }
+                    } else {
+                        items(visibleRecipes) { recipe ->
+                            RecipeListItem(recipe)
+                        }
                     }
                 }
             }
