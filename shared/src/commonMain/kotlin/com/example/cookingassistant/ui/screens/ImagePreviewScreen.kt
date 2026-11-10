@@ -47,11 +47,9 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                 contentScale = ContentScale.Fit
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.spacingMedium)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Dimens.spacingMedium)
             ) {
                 // Retake / Back Button
                 SecondaryButton(
@@ -60,7 +58,7 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                         navigator.pop()
                         screenModel.removeDiscardedImage(imagePath)
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                     testTag = "image_preview_retake",
                 )
 
@@ -70,7 +68,7 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                     onClick = {
                         // TODO: save `imagePath` to the local directory if needed
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                     testTag = "image_preview_confirm",
                 )
             }

@@ -116,7 +116,7 @@ data class IngredientsScreen(
 
                     is RecipeUiState.Error -> {
                         Text(
-                            text = state.message,
+                            text = state.message.ifBlank { "Rezepte konnten nicht geladen werden" },
                             color = MaterialTheme.colorScheme.error
                         )
                     }
