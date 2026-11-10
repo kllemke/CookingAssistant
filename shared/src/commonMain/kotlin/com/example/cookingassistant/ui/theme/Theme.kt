@@ -3,19 +3,23 @@ package com.example.cookingassistant.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 val GreenColorScheme = lightColorScheme(
-    primary = DarkGreen,
-    onPrimary = Color.White,
+    primary = Green,
+    onPrimary = LightGreen,
     secondary = Green,
-    onSecondary = Color.White,
-    surface = LightGreen,
-    onSurface = DarkerGreen,
-    onSurfaceVariant = DarkerGreen.copy(alpha = 0.7f), // Unselected icon & text
-    secondaryContainer = Green, // Active pill background
-    onSecondaryContainer = Color.White, // Icon inside active pill
-    outline = BorderGreen,
+    onSecondary = LightGreen,
+    secondaryContainer = Green, // Active nav pill
+    onSecondaryContainer = LightGreen,
+    background = White,
+    onBackground = Ink,
+    surface = White,
+    onSurface = Ink,
+    surfaceVariant = LightGreen,
+    onSurfaceVariant = InkMuted, // Unselected icon & text
+    surfaceContainer = LightGreen, // Cards, nav bar, text field
+    outline = Green,
+    outlineVariant = Grey,
 )
 
 @Composable
