@@ -1,29 +1,26 @@
 package com.example.cookingassistant.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Checklist
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Preview
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.cookingassistant.ui.screens.HomeScreen
 import com.example.cookingassistant.ui.screens.IngredientsScreen
 import com.example.cookingassistant.ui.screens.RecipeScreen
+import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_home_filled
 import cookingassistant.shared.generated.resources.ic_home_outlined
@@ -41,16 +38,17 @@ fun AppNavigationBar(
     val currentScreen = navigator.lastItem
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = Color.Transparent,
+        windowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier
-//            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .height(Dimens.navBarHeight)
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(80.dp)
+                shape = MaterialTheme.shapes.extraLarge,
             )
-            .padding(top = 10.dp)
             .testTag("bottom_bar"),
     ) {
         NavigationBarItem(
@@ -70,7 +68,9 @@ fun AppNavigationBar(
                     contentDescription = "Startseite"
                 )
             },
-            label = { Text("Startseite") }
+            label = { Text("Startseite") },
+            colors = navigationItemColors(),
+            modifier = Modifier.testTag("nav_home"),
         )
         NavigationBarItem(
             selected = currentScreen is IngredientsScreen,
@@ -90,7 +90,9 @@ fun AppNavigationBar(
                     contentDescription = "Zutaten",
                 )
             },
-            label = { Text("Zutaten") }
+            label = { Text("Zutaten") },
+            colors = navigationItemColors(),
+            modifier = Modifier.testTag("nav_ingredients"),
         )
         NavigationBarItem(
             selected = currentScreen is RecipeScreen,
@@ -109,7 +111,18 @@ fun AppNavigationBar(
                     ),
                     contentDescription = "Rezepte")
                    },
-            label = { Text("Rezepte") }
+            label = { Text("Rezepte") },
+            colors = navigationItemColors(),
+            modifier = Modifier.testTag("nav_recipes"),
         )
     }
 }
+
+@Composable
+private fun navigationItemColors() = NavigationBarItemDefaults.colors(
+    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    selectedTextColor = MaterialTheme.colorScheme.onSurface,
+    indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+)
