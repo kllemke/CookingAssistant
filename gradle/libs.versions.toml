@@ -18,6 +18,7 @@ uiTestManifest = "1.12.1"
 mokkery = "3.5.0"
 voyager = "2.2.21-1.10.3"
 robolectric = "4.17"
+coil = "3.6.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -48,6 +49,8 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 compose-uiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4", version = "1.7.2" }
 compose-uiTestManifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.7.2" }
 mokkery-runtime = { module = "dev.mokkery:mokkery-runtime", version.ref = "mokkery" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

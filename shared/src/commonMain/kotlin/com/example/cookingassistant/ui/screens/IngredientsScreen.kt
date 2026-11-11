@@ -55,7 +55,7 @@ data class IngredientsScreen(var initialText: String = "", val painter: Painter?
             val state = recipeUiState
 
             if (requestSent && state is RecipeUiState.Success) {
-                navigator.push(RecipeScreen())
+                navigator.push(RecipeListScreen())
             }
         }
 

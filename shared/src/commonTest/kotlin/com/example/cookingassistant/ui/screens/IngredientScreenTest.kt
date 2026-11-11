@@ -81,6 +81,6 @@ class IngredientScreenTest : BaseComposeTest() {
             )
         }
 
-        onNodeWithTag("recipe").assertExists()
+        onNodeWithTag("recipes_list").assertExists()
     }
 }
