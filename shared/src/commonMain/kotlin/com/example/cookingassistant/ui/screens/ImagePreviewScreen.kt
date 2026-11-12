@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -42,7 +43,8 @@ data class ImagePreviewScreen(val imagePath: String) : Screen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .clip(RoundedCornerShape(12.dp)),
+                    .clip(RoundedCornerShape(12.dp))
+                    .testTag("captured_photo"),
                 contentScale = ContentScale.Fit
             )
 
@@ -53,17 +55,23 @@ data class ImagePreviewScreen(val imagePath: String) : Screen {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 // Retake / Back Button
-                Button(onClick = {
-                    navigator.pop()
-                    screenModel.removeDiscardedImage(imagePath)
-                }) {
+                Button(
+                    onClick = {
+                        navigator.pop()
+                        screenModel.removeDiscardedImage(imagePath)
+                    },
+                    modifier = Modifier.testTag("retake_button")
+                ) {
                     Text("Retake")
                 }
 
                 // Confirm Button
-                Button(onClick = {
-                    // TODO: save `imagePath` to the local directory if needed
-                }) {
+                Button(
+                    onClick = {
+                        // TODO: save `imagePath` to the local directory if needed
+                    },
+                    modifier = Modifier.testTag("confirm_button")
+                ) {
                     Text("Confirm")
                 }
             }
