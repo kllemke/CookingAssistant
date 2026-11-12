@@ -49,7 +49,7 @@ fun HomeScreenButton(
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(Dimens.tileIcon)
             )
-            Spacer(modifier = Modifier.height(Dimens.spacingLarge))
+            Spacer(modifier = Modifier.height(Dimens.spacingExtraLarge))
             Text(
                 text = text,
                 style = MaterialTheme.typography.headlineSmall,
