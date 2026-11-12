@@ -42,30 +42,11 @@ import kotlinx.coroutines.launch
 class CameraScreen: Screen {
     @Composable
     override fun Content() {
-        // Workflow:
-        // 1. Scan the area (launch camera view)
-        // 2. Take a picture
-        // 3. Navigate to another Screen with Confirm
         val navigator = LocalNavigator.currentOrThrow
-
-        // moko-permissions manager
-        val factory = rememberPermissionsControllerFactory()
-        val controller = remember(factory) {
-            factory.createPermissionsController()
-        }
-        BindEffect(controller)
-
-        val cameraManagementScope = rememberCoroutineScope()
-
-        // Initialize Camera Permission State
-        var cameraPermissionState by remember { mutableStateOf(PermissionState.NotDetermined) }
-        LaunchedEffect(Unit){
-            cameraPermissionState = controller.getPermissionState(Permission.CAMERA)
-        }
+        val cameraPermissionHandler = rememberCameraPermissionState()
 
         // Wrap the whole when-statement to center it
         Box(
-            modifier = Modifier.fillMaxSize(),
             modifier = Modifier
                 .fillMaxSize()
                 .testTag("take_picture"),
@@ -73,12 +54,12 @@ class CameraScreen: Screen {
         ) {
             // Check Camera Permission
             // Exhaustive cameraPermissionState handling across Android & iOS
-            when (cameraPermissionState) {
+            when (cameraPermissionHandler.permissionState) {
                 PermissionState.Granted -> {
                     CameraView(
-                        onImageCaptured = {
-                            imagePath -> navigator.push(
-                            ImagePreviewScreen(imagePath = imagePath)
+                        onImageCaptured = { imagePath ->
+                            navigator.push(
+                                ImagePreviewScreen(imagePath = imagePath)
                             )
                         }
                     )
@@ -105,7 +86,7 @@ class CameraScreen: Screen {
                             )
                         }
                         Text("Camera permission is required. Please enable it in Settings.")
-                        Button(onClick = { controller.openAppSettings() }) {
+                        Button(onClick = { cameraPermissionHandler.openAppSettings() }) {
                             Text("Open Settings")
                         }
                     }
@@ -133,26 +114,7 @@ class CameraScreen: Screen {
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
-                        Button(
-                            onClick = {
-                                cameraManagementScope.launch {
-                                    try {
-                                        controller.providePermission(Permission.CAMERA)
-                                        cameraPermissionState = PermissionState.Granted
-                                    } catch (e: DeniedException) {
-                                        cameraPermissionState = PermissionState.Denied
-                                    } catch (e: DeniedAlwaysException) {
-                                        cameraPermissionState = PermissionState.DeniedAlways
-                                    } catch (e: RequestCanceledException) {
-                                        cameraPermissionState =
-                                            controller.getPermissionState(Permission.CAMERA)
-                                    } catch (e: Exception) {
-                                        cameraPermissionState =
-                                            controller.getPermissionState(Permission.CAMERA)
-                                    }
-                                }
-                            }
-                        ) {
+                        Button(onClick = { cameraPermissionHandler.requestPermission() }) {
                             Text("Grant camera permission")
                         }
                     }
@@ -162,6 +124,52 @@ class CameraScreen: Screen {
     }
 }
 
+@Composable
+fun rememberCameraPermissionState(): CameraPermissionHandler {
+    val factory = rememberPermissionsControllerFactory()
+    val controller = remember(factory) {
+        factory.createPermissionsController()
+    }
+    BindEffect(controller)
+
+    val scope = rememberCoroutineScope()
+    var permissionState by remember { mutableStateOf(PermissionState.NotDetermined) }
+
+    LaunchedEffect(Unit) {
+        permissionState = controller.getPermissionState(Permission.CAMERA)
+    }
+
+    return remember(controller, scope, permissionState) {
+        CameraPermissionHandler(
+            permissionState = permissionState,
+            requestPermission = {
+                scope.launch {
+                    try {
+                        controller.providePermission(Permission.CAMERA)
+                        permissionState = PermissionState.Granted
+                    } catch (e: DeniedException) {
+                        permissionState = PermissionState.Denied
+                    } catch (e: DeniedAlwaysException) {
+                        permissionState = PermissionState.DeniedAlways
+                    } catch (e: RequestCanceledException) {
+                        permissionState = controller.getPermissionState(Permission.CAMERA)
+                    } catch (e: Exception) {
+                        permissionState = controller.getPermissionState(Permission.CAMERA)
+                    }
+                }
+            },
+            openAppSettings = {
+                controller.openAppSettings()
+            }
+        )
+    }
+}
+
+class CameraPermissionHandler(
+    val permissionState: PermissionState,
+    val requestPermission: () -> Unit,
+    val openAppSettings: () -> Unit
+)
 
 @Preview
 @Composable
