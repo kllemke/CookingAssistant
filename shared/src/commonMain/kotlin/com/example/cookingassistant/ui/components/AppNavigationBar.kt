@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.cookingassistant.ui.screens.HomeScreen
 import com.example.cookingassistant.ui.screens.IngredientsScreen
-import com.example.cookingassistant.ui.screens.RecipeScreen
+import com.example.cookingassistant.ui.screens.RecipeListScreen
 import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_home_filled
@@ -97,16 +97,16 @@ fun AppNavigationBar(
             modifier = Modifier.testTag("nav_ingredients"),
         )
         NavigationBarItem(
-            selected = currentScreen is RecipeScreen,
+            selected = currentScreen is RecipeListScreen,
             onClick = {
-                if (currentScreen !is RecipeScreen) {
-                    navigator.push(RecipeScreen())
+                if (currentScreen !is RecipeListScreen) {
+                    navigator.push(RecipeListScreen())
                 }
             },
             icon = {
                 Icon(
                     painter = painterResource(
-                        if (currentScreen is RecipeScreen)
+                        if (currentScreen is RecipeListScreen)
                             Res.drawable.ic_receipt_filled
                         else
                             Res.drawable.ic_receipt_outlined

@@ -14,11 +14,23 @@ import com.example.cookingassistant.di.AppContainer
 import com.example.cookingassistant.di.LocalAppContainer
 import com.example.cookingassistant.ui.theme.CookingAssistantTheme
 import dev.mokkery.mock
+import okio.FileSystem
+import okio.Path
+import okio.SYSTEM
+import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class ImagePreviewScreenTest : BaseComposeTest() {
+
+    private val imagePath: Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "image_preview_test.jpg"
+
+    @AfterTest
+    fun cleanUp() {
+        FileSystem.SYSTEM.delete(imagePath, mustExist = false)
+    }
 
     /**
      * Fixture helper to set up DI container, theme, and composable content.
@@ -37,32 +49,31 @@ class ImagePreviewScreenTest : BaseComposeTest() {
     }
 
     @Test
-    fun showsBothActionButtons() = runComposeUiTest {
+    fun showsPhotoAndBothActionButtons() = runComposeUiTest {
         setTestContent {
-            Navigator(ImagePreviewScreen(imagePath = "file:///tmp/unused.png"))
+            Navigator(ImagePreviewScreen(imagePath = imagePath.toString()))
         }
 
+        onNodeWithTag("captured_photo").assertExists()
         onNodeWithTag("image_preview_retake").assertExists()
         onNodeWithTag("image_preview_confirm").assertExists()
     }
 
     @Test
-    fun clickingRetakePopsNavigator() = runComposeUiTest {
-        var popped = false
+    fun clickingRetakePopsNavigatorAndDeletesImage() = runComposeUiTest {
+        FileSystem.SYSTEM.write(imagePath) { writeUtf8("placeholder") }
+        lateinit var navigator: Navigator
 
         setTestContent {
-            Navigator(HomeScreen()) { navigator ->
-                if (navigator.lastItem is HomeScreen) {
-                    navigator.push(ImagePreviewScreen(imagePath = "file:///tmp/unused.png"))
-                } else {
-                    popped = true
-                }
+            Navigator(listOf(HomeScreen(), ImagePreviewScreen(imagePath = imagePath.toString()))) { nav ->
+                navigator = nav
                 CurrentScreen()
             }
         }
 
         onNodeWithTag("image_preview_retake").performClick()
 
-        assertTrue(popped, "Clicking retake should pop back to previous screen")
+        assertTrue(navigator.lastItem is HomeScreen, "Clicking retake should pop back to the home screen")
+        assertFalse(FileSystem.SYSTEM.exists(imagePath), "Clicking retake should delete the discarded image")
     }
 }
