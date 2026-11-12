@@ -99,6 +99,7 @@ kotlin {
 
             // Image rendering
             implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -110,14 +111,6 @@ kotlin {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.robolectric)
-                implementation(libs.androidx.ui.test.junit4.android)
-            }
-        }
-        getByName("androidDeviceTest") {
-            dependencies {
-                implementation(libs.androidx.test.runner)
-                implementation(libs.androidx.test.uiautomator)
-                implementation(libs.androidx.espresso.core)
                 implementation(libs.androidx.ui.test.junit4.android)
             }
         }

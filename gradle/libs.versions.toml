@@ -81,6 +81,7 @@ compose-material-icons-extended = { module = "org.jetbrains.compose.material:mat
 androidx-concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version.ref = "androidx-concurrent-futures" }
 mokkery-runtime = { module = "dev.mokkery:mokkery-runtime", version.ref = "mokkery" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging"}
 
