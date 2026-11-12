@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -41,6 +42,7 @@ fun AppNavigationBar(
         containerColor = Color.Transparent,
         windowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier
+            .padding(top = Dimens.spacingMedium)
             .height(Dimens.navBarHeight)
             .clip(MaterialTheme.shapes.extraLarge)
             .background(MaterialTheme.colorScheme.surfaceContainer)
