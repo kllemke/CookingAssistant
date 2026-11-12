@@ -113,6 +113,14 @@ kotlin {
                 implementation(libs.androidx.ui.test.junit4.android)
             }
         }
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.uiautomator)
+                implementation(libs.androidx.espresso.core)
+                implementation(libs.androidx.ui.test.junit4.android)
+            }
+        }
     }
 }
 
