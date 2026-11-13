@@ -34,7 +34,7 @@ fun HomeScreenButton(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+        border = BorderStroke(Dimens.borderWidth, MaterialTheme.colorScheme.outline),
         onClick = onClick,
         modifier = modifier
     ) {

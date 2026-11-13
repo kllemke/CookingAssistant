@@ -47,7 +47,7 @@ fun AppNavigationBar(
             .clip(MaterialTheme.shapes.extraLarge)
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .border(
-                width = 1.dp,
+                width = Dimens.hairlineWidth,
                 color = MaterialTheme.colorScheme.outline,
                 shape = MaterialTheme.shapes.extraLarge,
             )
