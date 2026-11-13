@@ -1,14 +1,20 @@
 package com.example.cookingassistant
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.cookingassistant.di.AppContainer
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ui.components.ScreenBlueprint
+import com.example.cookingassistant.ui.screens.AppScreen
 import com.example.cookingassistant.ui.screens.HomeScreen
-import com.example.cookingassistant.ui.theme.GreenColorScheme
+import com.example.cookingassistant.ui.screens.NeverImmersive
+import com.example.cookingassistant.ui.theme.CookingAssistantTheme
 
 @Composable
 @Preview
@@ -18,13 +24,21 @@ fun App() {
     }
 
     CompositionLocalProvider(
-        LocalAppContainer provides appContainer
-    ){
-        MaterialTheme (
-            colorScheme = GreenColorScheme
-        ) {
+        LocalAppContainer provides appContainer,
+    ) {
+        CookingAssistantTheme {
             Navigator(HomeScreen()) { navigator ->
-                CurrentScreen()
+                val currentScreen = navigator.lastItem as? AppScreen
+                val immersive by (currentScreen?.immersive ?: NeverImmersive).collectAsState()
+
+                ScreenBlueprint(
+                    title = currentScreen?.title,
+                    showBottomBar = currentScreen?.showBottomBar ?: true,
+                    immersive = immersive,
+                    navigator = navigator,
+                ) {
+                    CurrentScreen()
+                }
             }
         }
     }

@@ -1,18 +1,13 @@
 package com.example.cookingassistant.ui.components
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_filter_alt
 import cookingassistant.shared.generated.resources.ic_refresh
@@ -47,22 +42,24 @@ fun IngredientFilterDropdown(
         onExpandedChange = onExpandedChange,
         modifier = modifier,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(start = 18.dp, end = 8.dp, top = 4.dp, bottom = 6.dp)
-        ) {
+        DropdownMenuRow {
             Text(
                 "Rezepte anzeigen, die diese Zutaten verwenden",
-                fontSize = 13.sp,
-                color = Color.Gray,
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
             )
             if (selectedIngredients.isNotEmpty()) {
                 IconButton(
                     onClick = onReset,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(Dimens.iconSizeExtraLarge),
                 ) {
-                    Icon(painterResource(Res.drawable.ic_refresh), contentDescription = "Zurücksetzen", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(
+                        painterResource(Res.drawable.ic_refresh),
+                        contentDescription = "Zurücksetzen",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(Dimens.iconSizeSmall),
+                    )
                 }
             }
         }

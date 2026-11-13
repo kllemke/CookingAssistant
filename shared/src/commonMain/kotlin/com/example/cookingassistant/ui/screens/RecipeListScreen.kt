@@ -18,21 +18,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.screen.Screen
 import com.example.cookingassistant.di.LocalAppContainer
 import com.example.cookingassistant.ui.components.IngredientFilterDropdown
 import com.example.cookingassistant.ui.components.RecipeListItem
 import com.example.cookingassistant.ui.components.RecipeSortingDropdown
 import com.example.cookingassistant.ui.screenmodel.RecipeSort
 import com.example.cookingassistant.ui.screenmodel.RecipeUiState
+import com.example.cookingassistant.ui.theme.Dimens
 
 private enum class RecipeListMenu { INGREDIENTS, SORT }
 
-class RecipeListScreen: Screen {
+class RecipeListScreen : AppScreen {
+    override val title: String = "Rezepte"
+    override val showBottomBar: Boolean = true
+
     @Composable
     override fun Content() {
         val appContainer = LocalAppContainer.current
@@ -56,15 +56,10 @@ class RecipeListScreen: Screen {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(top = Dimens.spacingSmall),
             ) {
-                Text(
-                    text = "Rezepte",
-                    fontSize = 30.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.spacingSmall),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     IngredientFilterDropdown(
@@ -85,20 +80,26 @@ class RecipeListScreen: Screen {
                         modifier = Modifier.weight(1f),
                     )
                 }
-                LazyColumn (
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(Dimens.spacingMedium),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(top = Dimens.spacingMedium)
                         .testTag("recipes_list"),
                 ) {
                     if (state.allRecipes.isEmpty()) {
                         item {
-                            Text("Keine Rezepte gefunden", color = Color.Gray)
+                            Text(
+                                text = "Keine Rezepte gefunden",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     } else if (visibleRecipes.isEmpty()) {
                         item {
-                            Text("Keine Rezepte für diesen Filter", color = Color.Gray)
+                            Text(
+                                text = "Keine Rezepte für diesen Filter",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     } else {
                         items(visibleRecipes) { recipe ->
