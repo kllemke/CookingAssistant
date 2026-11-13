@@ -22,8 +22,8 @@ import com.example.cookingassistant.ui.theme.Dimens
 
 // Pass imagePath in the constructor
 data class ImagePreviewScreen(val imagePath: String) : AppScreen {
-    override val showBottomBar: Boolean = false
-    override val title: String? = null
+    override val showBottomBar: Boolean = true
+    override val title: String = "Foto überprüfen"
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow

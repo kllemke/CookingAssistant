@@ -19,6 +19,7 @@ import okio.Path
 import okio.SYSTEM
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -46,6 +47,14 @@ class ImagePreviewScreenTest : BaseComposeTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun usesStandardChrome() {
+        val screen = ImagePreviewScreen(imagePath = "test.jpg")
+
+        assertEquals("Foto überprüfen", screen.title)
+        assertTrue(screen.showBottomBar)
     }
 
     @Test
