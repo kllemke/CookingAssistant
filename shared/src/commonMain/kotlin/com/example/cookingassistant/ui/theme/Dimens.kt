@@ -42,4 +42,8 @@ object Dimens {
     val menuRowGap: Dp = 12.dp
     val controlInset: Dp = 12.dp
     val controlGap: Dp = 8.dp
+
+    // Camera
+    val captureButtonSize: Dp = 80.dp
+    val captureIconSize: Dp = 50.dp
 }

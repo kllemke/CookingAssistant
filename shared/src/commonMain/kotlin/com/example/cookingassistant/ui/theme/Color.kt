@@ -8,3 +8,6 @@ val Ink = Color(0xFF1E221C)
 val InkMuted = Color(0xFF49454F)
 val Grey = Color(0xFFD9D9D9)
 val White = Color(0xFFFFFFFF)
+
+// Overlay content drawn on top of media (camera preview), not on an app surface
+val CameraOverlay = Color(0xFFFFFFFF)
