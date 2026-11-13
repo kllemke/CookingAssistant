@@ -82,7 +82,11 @@ internal fun Dropdown(
             shadowElevation = Dimens.shadowElevation,
             border = BorderStroke(Dimens.borderWidth, MaterialTheme.colorScheme.secondary),
             modifier = Modifier.heightIn(max = Dimens.dropdownMaxHeight),
-            content = content,
+            content = {
+                Column(modifier = Modifier.padding(horizontal = Dimens.menuGutter)) {
+                    content()
+                }
+            },
         )
     }
 }
@@ -119,8 +123,8 @@ private fun DropdownField(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.controlGap),
+            modifier = Modifier.padding(horizontal = Dimens.controlInset),
         ) {
             Icon(painterResource(icon), contentDescription = null, tint = colors.primary, modifier = Modifier.size(Dimens.iconSizeMedium))
             Column(modifier = Modifier.weight(1f)) {
@@ -150,9 +154,11 @@ private fun DropdownField(
 
 /**
  * Shared menu row: every row inside a [Dropdown] menu uses this container,
- * so rows align structurally instead of by matched paddings. [modifier]
- * applies inside the clip (e.g. [selectable] or [toggleable] plus a
- * background) so it stays clipped to the row radius.
+ * so rows align structurally instead of by matched paddings. The gutter
+ * between the menu surface and its rows is applied by the [Dropdown]
+ * container, not here. [modifier] applies inside the clip (e.g.
+ * [selectable] or [toggleable] plus a background) so it stays clipped to
+ * the row radius.
  *
  * @param modifier row behavior and background, applied inside the clip.
  * @param content row entries.
@@ -164,14 +170,13 @@ internal fun DropdownMenuRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.menuRowGap),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
             .heightIn(min = Dimens.controlHeight)
             .clip(MaterialTheme.shapes.small)
             .then(modifier)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = Dimens.menuRowPadding),
         content = content,
     )
 }

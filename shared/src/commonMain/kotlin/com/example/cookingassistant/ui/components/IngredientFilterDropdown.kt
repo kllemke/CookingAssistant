@@ -1,6 +1,5 @@
 package com.example.cookingassistant.ui.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,7 +42,7 @@ fun IngredientFilterDropdown(
         onExpandedChange = onExpandedChange,
         modifier = modifier,
     ) {
-        DropdownMenuRow(modifier = Modifier.fillMaxWidth()) {
+        DropdownMenuRow {
             Text(
                 "Rezepte anzeigen, die diese Zutaten verwenden",
                 style = MaterialTheme.typography.bodySmall,
