@@ -61,9 +61,9 @@ class CameraScreen: AppScreen {
                     // Send to app settings when permission was permanently denied
                     // (iOS "Don't Allow" / Android "Don't ask again")
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Camera permission is required. Please enable it in Settings.")
+                        Text("Kamerazugriff erforderlich. Bitte in den Einstellungen aktivieren.")
                         Button(onClick = { cameraPermissionHandler.openAppSettings() }) {
-                            Text("Open Settings")
+                            Text("Einstellungen öffnen")
                         }
                     }
                 }
@@ -73,8 +73,11 @@ class CameraScreen: AppScreen {
                     // Permission not granted yet
                     // (Android initial state is Denied/NotGranted; iOS is NotDetermined)
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Button(onClick = { cameraPermissionHandler.requestPermission() }) {
-                            Text("Grant camera permission")
+                        Button(
+                            onClick = { cameraPermissionHandler.requestPermission() },
+                            modifier = Modifier.testTag("grant_camera_permission")
+                        ) {
+                            Text("Kamerazugriff erlauben")
                         }
                     }
                 }

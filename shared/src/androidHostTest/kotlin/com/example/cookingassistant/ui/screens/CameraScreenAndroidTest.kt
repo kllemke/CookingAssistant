@@ -2,7 +2,7 @@ package com.example.cookingassistant.ui.screens
 
 import android.Manifest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import cafe.adriel.voyager.navigator.Navigator
@@ -23,7 +23,7 @@ class CameraScreenAndroidTest : BaseComposeTest() {
         }
 
         waitUntil {
-            onAllNodes(hasText("Grant camera permission")).fetchSemanticsNodes().isEmpty()
+            onAllNodes(hasTestTag("grant_camera_permission")).fetchSemanticsNodes().isEmpty()
         }
         onNodeWithTag("take_picture").assertExists()
     }

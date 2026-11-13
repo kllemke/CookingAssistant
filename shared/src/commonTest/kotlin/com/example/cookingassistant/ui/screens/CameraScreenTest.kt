@@ -2,7 +2,6 @@ package com.example.cookingassistant.ui.screens
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import cafe.adriel.voyager.navigator.Navigator
 import kotlin.test.Test
@@ -17,6 +16,6 @@ class CameraScreenTest : BaseComposeTest() {
         }
 
         onNodeWithTag("take_picture").assertExists()
-        onNodeWithText("Grant camera permission").assertExists()
+        onNodeWithTag("grant_camera_permission").assertExists()
     }
 }
