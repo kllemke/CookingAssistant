@@ -35,4 +35,11 @@ object Dimens {
     // Borders
     val borderWidth: Dp = 2.dp
     val hairlineWidth: Dp = 1.dp
+
+    // Control internals (dropdown field + menu rows)
+    val menuGutter: Dp = 8.dp
+    val menuRowPadding: Dp = 10.dp
+    val menuRowGap: Dp = 12.dp
+    val controlInset: Dp = 12.dp
+    val controlGap: Dp = 8.dp
 }
