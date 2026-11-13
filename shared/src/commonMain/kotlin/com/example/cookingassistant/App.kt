@@ -10,8 +10,12 @@ import com.example.cookingassistant.di.AppContainer
 import com.example.cookingassistant.di.LocalAppContainer
 import com.example.cookingassistant.ui.components.ScreenBlueprint
 import com.example.cookingassistant.ui.screens.AppScreen
+import com.example.cookingassistant.ui.screens.CameraScreen
 import com.example.cookingassistant.ui.screens.HomeScreen
+import com.example.cookingassistant.ui.screens.LocalCameraPermissionHandler
+import com.example.cookingassistant.ui.screens.rememberCameraPermissionState
 import com.example.cookingassistant.ui.theme.CookingAssistantTheme
+import dev.icerock.moko.permissions.PermissionState
 
 @Composable
 @Preview
@@ -26,12 +30,26 @@ fun App() {
         CookingAssistantTheme {
             Navigator(HomeScreen()) { navigator ->
                 val currentScreen = navigator.lastItem as? AppScreen
-                ScreenBlueprint(
-                    title = currentScreen?.title,
-                    showBottomBar = currentScreen?.showBottomBar ?: true,
-                    navigator = navigator,
+                val cameraPermissionHandler = if (currentScreen is CameraScreen) {
+                    rememberCameraPermissionState()
+                } else null
+
+                val isCameraGranted = currentScreen is CameraScreen &&
+                        cameraPermissionHandler?.permissionState == PermissionState.Granted
+
+                val title = if (isCameraGranted) null else currentScreen?.title
+                val showBottomBar = if (isCameraGranted) false else (currentScreen?.showBottomBar ?: true)
+
+                CompositionLocalProvider(
+                    LocalCameraPermissionHandler provides cameraPermissionHandler
                 ) {
-                    CurrentScreen()
+                    ScreenBlueprint(
+                        title = title,
+                        showBottomBar = showBottomBar,
+                        navigator = navigator,
+                    ) {
+                        CurrentScreen()
+                    }
                 }
             }
         }

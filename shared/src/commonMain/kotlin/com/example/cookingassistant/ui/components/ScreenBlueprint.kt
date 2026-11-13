@@ -2,12 +2,15 @@ package com.example.cookingassistant.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
 import androidx.compose.foundation.layout.navigationBarsPadding
 import com.example.cookingassistant.ui.theme.Dimens
@@ -17,6 +20,7 @@ import com.example.cookingassistant.ui.theme.Dimens
 fun ScreenBlueprint(
     title: String? = null,
     showBottomBar: Boolean = true,
+    immersive: Boolean = false,
     navigator: Navigator? = null,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
@@ -25,9 +29,10 @@ fun ScreenBlueprint(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = Dimens.screenPadding),
+            .padding(horizontal = if (immersive) 0.dp else Dimens.screenPadding),
+        contentWindowInsets = if (immersive) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
         topBar = {
-            if (title != null) {
+            if (!immersive && title != null) {
                 AppHeader(
                     title = title,
                     modifier = Modifier
@@ -36,7 +41,7 @@ fun ScreenBlueprint(
             }
         },
         bottomBar = {
-            if (showBottomBar && navigator != null) {
+            if (!immersive && showBottomBar && navigator != null) {
                 AppNavigationBar(
                     navigator = navigator,
                     modifier = Modifier.navigationBarsPadding()

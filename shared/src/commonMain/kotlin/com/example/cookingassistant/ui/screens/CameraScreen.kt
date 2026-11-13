@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.ui.components.CameraView
@@ -32,6 +34,8 @@ import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.launch
 
+val LocalCameraPermissionHandler = compositionLocalOf<CameraPermissionHandler?> { null }
+
 class CameraScreen: AppScreen {
     override val showBottomBar: Boolean = true
     override val title: String = "Zutaten photographieren"
@@ -39,12 +43,12 @@ class CameraScreen: AppScreen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val cameraPermissionHandler = rememberCameraPermissionState()
+        val cameraPermissionHandler = LocalCameraPermissionHandler.current ?: rememberCameraPermissionState()
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = Dimens.spacingSmall)
+                .padding(vertical = if (cameraPermissionHandler.permissionState == PermissionState.Granted) 0.dp else Dimens.spacingSmall)
                 .testTag("take_picture"),
             contentAlignment = Alignment.Center
         ) {
