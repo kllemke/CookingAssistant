@@ -12,6 +12,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -89,7 +90,6 @@ actual fun CameraView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = Dimens.spacingSmall)
     ){
         // Alternative UI for when camera hardware fails
         if (hasCameraError) {
@@ -118,6 +118,7 @@ actual fun CameraView(
                     },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
                         .padding(bottom = Dimens.spacingMedium),
                     testTag = "capture_photo",
                 )
