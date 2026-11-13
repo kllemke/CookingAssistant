@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -35,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_check
 import cookingassistant.shared.generated.resources.ic_keyboard_arrow_down
@@ -77,12 +76,12 @@ internal fun Dropdown(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
-            offset = DpOffset(0.dp, 4.dp),
-            shape = RoundedCornerShape(8.dp),
-            containerColor = Color.White,
-            shadowElevation = 8.dp,
-            border = BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
-            modifier = Modifier.heightIn(max = 420.dp),
+            offset = DpOffset(0.dp, Dimens.spacingExtraSmall),
+            shape = MaterialTheme.shapes.small,
+            containerColor = MaterialTheme.colorScheme.surface,
+            shadowElevation = Dimens.shadowElevation,
+            border = BorderStroke(Dimens.borderWidth, MaterialTheme.colorScheme.secondary),
+            modifier = Modifier.heightIn(max = Dimens.dropdownMaxHeight),
             content = content,
         )
     }
@@ -111,11 +110,11 @@ private fun DropdownField(
     val colors = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.small,
         color = if (highlighted) colors.secondary else colors.surface,
-        border = BorderStroke(2.dp, if (expanded || highlighted) colors.primary else colors.secondary),
+        border = BorderStroke(Dimens.borderWidth, if (expanded || highlighted) colors.primary else colors.secondary),
         modifier = modifier
-            .height(48.dp)
+            .height(Dimens.controlHeight)
             .semantics { stateDescription = if (expanded) "geöffnet" else "geschlossen" },
     ) {
         Row(
@@ -123,15 +122,18 @@ private fun DropdownField(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(horizontal = 12.dp),
         ) {
-            Icon(painterResource(icon), contentDescription = null, tint = colors.primary, modifier = Modifier.size(18.dp))
+            Icon(painterResource(icon), contentDescription = null, tint = colors.primary, modifier = Modifier.size(Dimens.iconSizeMedium))
             Column(modifier = Modifier.weight(1f)) {
-                Text(caption, fontSize = 11.sp, lineHeight = 14.sp, color = Color.Gray)
+                Text(
+                    caption,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Text(
                     value,
-                    fontSize = 14.sp,
-                    lineHeight = 18.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -139,11 +141,39 @@ private fun DropdownField(
             Icon(
                 painterResource(if (expanded) Res.drawable.ic_keyboard_arrow_up else Res.drawable.ic_keyboard_arrow_down),
                 contentDescription = null,
-                tint = Color.Gray,
-                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(Dimens.iconSizeMedium),
             )
         }
     }
+}
+
+/**
+ * Shared menu row: every row inside a [Dropdown] menu uses this container,
+ * so rows align structurally instead of by matched paddings. [modifier]
+ * applies inside the clip (e.g. [selectable] or [toggleable] plus a
+ * background) so it stays clipped to the row radius.
+ *
+ * @param modifier row behavior and background, applied inside the clip.
+ * @param content row entries.
+ */
+@Composable
+internal fun DropdownMenuRow(
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .heightIn(min = Dimens.controlHeight)
+            .clip(MaterialTheme.shapes.small)
+            .then(modifier)
+            .padding(horizontal = 10.dp),
+        content = content,
+    )
 }
 
 /**
@@ -155,23 +185,16 @@ private fun DropdownField(
  */
 @Composable
 internal fun OptionRow(label: String, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    DropdownMenuRow(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .heightIn(min = 48.dp)
-            .clip(RoundedCornerShape(10.dp))
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .background(if (selected) MaterialTheme.colorScheme.surface else Color.White)
-            .padding(horizontal = 10.dp),
+            .background(MaterialTheme.colorScheme.surface),
     ) {
         Text(
             label,
-            fontSize = 15.sp,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
         )
         if (selected) {
@@ -179,10 +202,10 @@ internal fun OptionRow(label: String, selected: Boolean, onClick: () -> Unit) {
                 painterResource(Res.drawable.ic_check),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(Dimens.iconSizeLarge),
             )
         } else {
-            Spacer(Modifier.size(20.dp))
+            Spacer(Modifier.size(Dimens.iconSizeLarge))
         }
     }
 }
@@ -196,22 +219,19 @@ internal fun OptionRow(label: String, selected: Boolean, onClick: () -> Unit) {
  */
 @Composable
 internal fun DropdownCheckRow(label: String, checked: Boolean, onToggle: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .heightIn(min = 48.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
-            .padding(horizontal = 10.dp),
+    DropdownMenuRow(
+        modifier = Modifier.toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() }),
     ) {
         Checkbox(
             checked = checked,
             onCheckedChange = null,
             colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary),
         )
-        Text(label, fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
     }
 }
