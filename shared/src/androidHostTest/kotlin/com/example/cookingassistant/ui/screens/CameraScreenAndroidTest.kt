@@ -18,13 +18,15 @@ class CameraScreenAndroidTest : BaseComposeTest() {
         Shadows.shadowOf(RuntimeEnvironment.getApplication())
             .grantPermissions(Manifest.permission.CAMERA)
 
+        val screen = CameraScreen()
         setContent {
-            Navigator(CameraScreen())
+            Navigator(screen)
         }
 
         waitUntil {
             onAllNodes(hasTestTag("grant_camera_permission")).fetchSemanticsNodes().isEmpty()
         }
+        waitUntil { screen.immersive.value }
         onNodeWithTag("take_picture").assertExists()
     }
 }

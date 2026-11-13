@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,18 +32,25 @@ import dev.icerock.moko.permissions.RequestCanceledException
 import dev.icerock.moko.permissions.camera.CAMERA
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-
-val LocalCameraPermissionHandler = compositionLocalOf<CameraPermissionHandler?> { null }
 
 class CameraScreen: AppScreen {
     override val showBottomBar: Boolean = true
     override val title: String = "Zutaten photographieren"
+    override val immersive = MutableStateFlow(false)
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val cameraPermissionHandler = LocalCameraPermissionHandler.current ?: rememberCameraPermissionState()
+        val cameraPermissionHandler = rememberCameraPermissionState()
+
+        LaunchedEffect(cameraPermissionHandler.permissionState) {
+            immersive.value = cameraPermissionHandler.permissionState == PermissionState.Granted
+        }
+        DisposableEffect(Unit) {
+            onDispose { immersive.value = false }
+        }
 
         Box(
             modifier = Modifier
