@@ -1,10 +1,12 @@
 package com.example.cookingassistant.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-val GreenColorScheme = lightColorScheme(
+val GreenLightColorScheme = lightColorScheme(
     primary = Green,
     onPrimary = LightGreen,
     secondary = Green,
@@ -22,12 +24,32 @@ val GreenColorScheme = lightColorScheme(
     outlineVariant = Grey,
 )
 
+val GreenDarkColorScheme = darkColorScheme(
+    primary = GreenDarkPrimary,
+    onPrimary = InkDarkBackground,
+    secondary = GreenDarkPrimary,
+    onSecondary = InkDarkBackground,
+    secondaryContainer = GreenDarkPrimary,
+    onSecondaryContainer = InkDarkBackground,
+    background = InkDarkBackground,
+    onBackground = InkDarkText,
+    surface = InkDarkBackground,
+    onSurface = InkDarkText,
+    surfaceVariant = InkDarkSurfaceContainer,
+    onSurfaceVariant = InkDarkMutedText,
+    surfaceContainer = InkDarkSurfaceContainer,
+    outline = GreenDarkPrimary,
+    outlineVariant = GreyDarkOutline,
+)
+
 @Composable
 fun CookingAssistantTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+    val colorScheme = if (darkTheme) GreenDarkColorScheme else GreenLightColorScheme
     MaterialTheme(
-        colorScheme = GreenColorScheme,
+        colorScheme = colorScheme,
         typography = AppTypography,
         shapes = AppShapes,
         content = content,
