@@ -11,3 +11,12 @@ val White = Color(0xFFFFFFFF)
 
 // Overlay content drawn on top of media (camera preview), not on an app surface
 val CameraOverlay = Color(0xFFFFFFFF)
+
+
+// Dark Theme Colors
+val GreenDarkPrimary = Color(0xFF86B878)      // Primary accent (lighter green for readability on dark)
+val InkDarkBackground = Color(0xFF141713)     // Deep dark background
+val InkDarkSurfaceContainer = Color(0xFF222620)// Container/card surface background
+val InkDarkText = Color(0xFFE2E4DF)           // High contrast text on dark background
+val InkDarkMutedText = Color(0xFFA6AAA2)      // Secondary/muted text
+val GreyDarkOutline = Color(0xFF42473E)       // Borders & outlines in dark theme
