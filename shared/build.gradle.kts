@@ -46,6 +46,18 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+
+            /// Camera
+            implementation(libs.androidx.camera.core)
+            implementation(libs.androidx.camera.lifecycle)
+            implementation(libs.androidx.camera.view)
+            implementation(libs.androidx.camera.camera2)
+            implementation(libs.androidx.camera.video)
+            implementation(libs.androidx.camera.extensions)
+
+            /// Concurrent Futures KTX (for .await() support)
+            implementation(libs.androidx.concurrent.futures.ktx)
+
             implementation(libs.ktor.client.android)
         }
         val androidHostTest by getting {
@@ -68,6 +80,24 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
             implementation(libs.kotlin.test)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.voyager.navigator)
+
+            // Platform-independent File Management
+            implementation(libs.okio)
+
+            // Logging
+            implementation(libs.kotlin.logging)
+
+            // Permission handling
+            api(libs.moko.permissions)
+            implementation(libs.moko.permissions.camera)
+            implementation(libs.moko.permissions.gallery)
+            api(libs.moko.permissions.compose)
+            implementation(compose.materialIconsExtended)
+
+            // Image rendering
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
         }
@@ -75,6 +105,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.compose.uiTest)
             implementation(libs.mokkery.runtime)
+            implementation(libs.moko.permissions.test)
         }
         getByName("androidHostTest") {
             dependencies {
