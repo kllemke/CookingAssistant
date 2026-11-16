@@ -16,6 +16,7 @@ class RecipeApi(
         return client
             .get("$BASE_URL/recipes/findByIngredients") {
                 parameter("ingredients", ingredients.joinToString(","))
+                parameter("language", "de")
             }
             .body<List<Recipe>>()
     }

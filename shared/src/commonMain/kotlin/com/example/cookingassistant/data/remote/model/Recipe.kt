@@ -14,5 +14,13 @@ data class Recipe(
     val title: String,
     val unusedIngredients: List<Ingredient>,
     val usedIngredientCount: Int,
-    val usedIngredients: List<Ingredient>
+    val usedIngredients: List<Ingredient>,
+    val summary: String? = null,
+    val instructions: String? = null,
+    val readyInMinutes: Int? = 30,
+    val servings: Int? = 4,
+    val calories: Int? = 350,
+    val protein: String? = "15g",
+    val carbs: String? = "45g",
+    val fat: String? = "12g"
 )
