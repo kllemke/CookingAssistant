@@ -35,7 +35,10 @@ class HomeScreen: Screen {
             contentAlignment = Alignment.Center
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f).padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f)
+                    .padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -51,7 +54,10 @@ class HomeScreen: Screen {
                     onClick = {
                         navigator.push(IngredientsScreen())
                     },
-                    modifier = Modifier.fillMaxWidth().weight(1f).testTag("to_enter_manually")
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .testTag("to_enter_manually")
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 HomeScreenButton(
@@ -60,7 +66,10 @@ class HomeScreen: Screen {
                     onClick = {
                         navigator.push(CameraScreen())
                     },
-                    modifier = Modifier.fillMaxWidth().weight(1f).testTag("to_take_picture")
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .testTag("to_take_picture")
                 )
             }
         }
