@@ -1,6 +1,8 @@
 package com.example.cookingassistant.ui.screens
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
@@ -33,19 +36,25 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
         Column(
             modifier = Modifier.fillMaxSize().padding(vertical = Dimens.spacingSmall),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(Dimens.spacingMedium)
         ) {
-            // Load and display image asynchronously
-            AsyncImage(
-                model = imagePath,
-                contentDescription = "Captured Photo",
+            // Load and display image asynchronously in a clipped & bordered Box
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .border(width = Dimens.borderWidth, color = MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.small)
                     .clip(MaterialTheme.shapes.small)
-                    .testTag("captured_photo"),
-                contentScale = ContentScale.Fit
-            )
+            ) {
+                AsyncImage(
+                    model = imagePath,
+                    contentDescription = "Captured Photo",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("captured_photo"),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
