@@ -1,14 +1,8 @@
 package com.example.cookingassistant.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,18 +11,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.ui.components.CameraView
+import com.example.cookingassistant.ui.components.PrimaryButton
+import com.example.cookingassistant.ui.theme.Dimens
 import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
 import dev.icerock.moko.permissions.Permission
@@ -37,18 +31,29 @@ import dev.icerock.moko.permissions.RequestCanceledException
 import dev.icerock.moko.permissions.camera.CAMERA
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CameraScreen: Screen {
+class CameraScreen: AppScreen {
+    override val config = MutableStateFlow(ScreenConfig(title = "Zutaten fotografieren"))
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val cameraPermissionHandler = rememberCameraPermissionState()
 
-        // Wrap the whole when-statement to center it
+        LaunchedEffect(cameraPermissionHandler.permissionState) {
+            val granted = cameraPermissionHandler.permissionState == PermissionState.Granted
+            config.update {
+                it.copy(layout = if (granted) ScreenLayout.EdgeToEdge else ScreenLayout.Standard)
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(vertical = if (cameraPermissionHandler.permissionState == PermissionState.Granted) 0.dp else Dimens.spacingSmall)
                 .testTag("take_picture"),
             contentAlignment = Alignment.Center
         ) {
@@ -66,63 +71,29 @@ class CameraScreen: Screen {
                 }
                 PermissionState.DeniedAlways -> {
                     // Send to app settings when permission was permanently denied
-                    // (iOS "Don't Allow" / Android "Don't ask again")
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .statusBarsPadding()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Zutaten fotografieren ",
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(vertical = 12.dp)
-                        )
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text("Camera permission is required. Please enable it in Settings.")
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { cameraPermissionHandler.openAppSettings() }) {
-                                Text("Open Settings")
-                            }
-                        }
-                    }
+                    Text(
+                        text = "Kamerazugriff erforderlich. Bitte in den Einstellungen aktivieren.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                    PrimaryButton(
+                        text = "Einstellungen öffnen",
+                        onClick = { cameraPermissionHandler.openAppSettings() },
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                        testTag = "open_settings"
+                    )
                 }
                 PermissionState.Denied,
                 PermissionState.NotGranted,
                 PermissionState.NotDetermined -> {
                     // Permission not granted yet
-                    // (Android initial state is Denied/NotGranted; iOS is NotDetermined)
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .statusBarsPadding()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Zutaten fotografieren",
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(vertical = 12.dp)
-                        )
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Button(onClick = { cameraPermissionHandler.requestPermission() }) {
-                                Text("Grant camera permission")
-                            }
-                        }
-                    }
+                    PrimaryButton(
+                        text = "Kamerazugriff erlauben",
+                        onClick = { cameraPermissionHandler.requestPermission() },
+                        modifier = Modifier.align(Alignment.Center),
+                        testTag = "grant_camera_permission"
+                    )
                 }
             }
         }
