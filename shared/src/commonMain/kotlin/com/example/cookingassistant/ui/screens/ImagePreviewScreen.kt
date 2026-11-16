@@ -52,7 +52,7 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                     modifier = Modifier
                         .fillMaxSize()
                         .testTag("captured_photo"),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.FillBounds
                 )
             }
 
