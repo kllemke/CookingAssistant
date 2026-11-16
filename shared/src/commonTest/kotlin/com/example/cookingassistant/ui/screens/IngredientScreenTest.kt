@@ -52,6 +52,24 @@ class IngredientScreenTest : BaseComposeTest() {
     }
 
     @Test
+    fun testSaveButtonUsesMockupCopy() = runComposeUiTest {
+        val repository = mock<RecipeRepository>()
+        val container = AppContainer(repository)
+
+        setContent {
+            CompositionLocalProvider(
+                LocalAppContainer provides container
+            ) {
+                Navigator(
+                    IngredientsScreen(initialText = "Tomaten")
+                )
+            }
+        }
+
+        onNodeWithTag("save_button").assertTextContains("Speichern")
+    }
+
+    @Test
     fun testRecipeSearchWorks() = runComposeUiTest {
         val repository = mock<RecipeRepository>()
 
