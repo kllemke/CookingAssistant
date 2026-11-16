@@ -1,30 +1,29 @@
 package com.example.cookingassistant.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ui.components.PrimaryButton
+import com.example.cookingassistant.ui.components.SecondaryButton
+import com.example.cookingassistant.ui.theme.Dimens
+import kotlinx.coroutines.flow.MutableStateFlow
 
 // Pass imagePath in the constructor
-data class ImagePreviewScreen(val imagePath: String) : Screen {
+data class ImagePreviewScreen(val imagePath: String) : AppScreen {
+    override val config = MutableStateFlow(ScreenConfig(title = "Foto überprüfen"))
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -32,7 +31,7 @@ data class ImagePreviewScreen(val imagePath: String) : Screen {
         val screenModel = appContainer.imagePreviewScreenModel
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(vertical = Dimens.spacingSmall),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -43,37 +42,35 @@ data class ImagePreviewScreen(val imagePath: String) : Screen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(MaterialTheme.shapes.small)
                     .testTag("captured_photo"),
                 contentScale = ContentScale.Fit
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Dimens.spacingMedium)
             ) {
                 // Retake / Back Button
-                Button(
+                SecondaryButton(
+                    text = "Erneut",
                     onClick = {
                         navigator.pop()
                         screenModel.removeDiscardedImage(imagePath)
                     },
-                    modifier = Modifier.testTag("retake_button")
-                ) {
-                    Text("Retake")
-                }
+                    modifier = Modifier.fillMaxWidth(),
+                    testTag = "image_preview_retake",
+                )
 
                 // Confirm Button
-                Button(
+                PrimaryButton(
+                    text = "Bestätigen",
                     onClick = {
                         // TODO: save `imagePath` to the local directory if needed
                     },
-                    modifier = Modifier.testTag("confirm_button")
-                ) {
-                    Text("Confirm")
-                }
+                    modifier = Modifier.fillMaxWidth(),
+                    testTag = "image_preview_confirm",
+                )
             }
         }
     }

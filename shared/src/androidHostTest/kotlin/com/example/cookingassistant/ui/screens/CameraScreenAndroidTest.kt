@@ -2,7 +2,7 @@ package com.example.cookingassistant.ui.screens
 
 import android.Manifest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import cafe.adriel.voyager.navigator.Navigator
@@ -18,13 +18,15 @@ class CameraScreenAndroidTest : BaseComposeTest() {
         Shadows.shadowOf(RuntimeEnvironment.getApplication())
             .grantPermissions(Manifest.permission.CAMERA)
 
+        val screen = CameraScreen()
         setContent {
-            Navigator(CameraScreen())
+            Navigator(screen)
         }
 
         waitUntil {
-            onAllNodes(hasText("Grant camera permission")).fetchSemanticsNodes().isEmpty()
+            onAllNodes(hasTestTag("grant_camera_permission")).fetchSemanticsNodes().isEmpty()
         }
+        waitUntil { screen.config.value.isEdgeToEdge }
         onNodeWithTag("take_picture").assertExists()
     }
 }

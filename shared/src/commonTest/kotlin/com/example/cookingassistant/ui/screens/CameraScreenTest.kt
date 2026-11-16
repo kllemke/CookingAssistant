@@ -2,10 +2,10 @@ package com.example.cookingassistant.ui.screens
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import cafe.adriel.voyager.navigator.Navigator
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class CameraScreenTest : BaseComposeTest() {
@@ -17,6 +17,17 @@ class CameraScreenTest : BaseComposeTest() {
         }
 
         onNodeWithTag("take_picture").assertExists()
-        onNodeWithText("Grant camera permission").assertExists()
+        onNodeWithTag("grant_camera_permission").assertExists()
+    }
+
+    @Test
+    fun staysNonImmersiveWhilePermissionIsMissing() = runComposeUiTest {
+        val screen = CameraScreen()
+
+        setContent {
+            Navigator(screen)
+        }
+
+        assertEquals(ScreenLayout.Standard, screen.config.value.layout)
     }
 }
