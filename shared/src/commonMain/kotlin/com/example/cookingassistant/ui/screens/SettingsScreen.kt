@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class SettingsScreen : AppScreen {
-    override val config = MutableStateFlow(ScreenConfig(title = "Einstellungen"))
+    override val config = MutableStateFlow(ScreenConfig(title = "Settings"))
 
     @Composable
     override fun Content(){

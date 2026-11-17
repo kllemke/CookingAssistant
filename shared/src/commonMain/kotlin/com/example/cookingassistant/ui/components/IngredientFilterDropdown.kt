@@ -34,8 +34,8 @@ fun IngredientFilterDropdown(
     modifier: Modifier = Modifier,
 ) {
     Dropdown(
-        caption = "Zutaten",
-        value = if (selectedIngredients.isNotEmpty()) "${selectedIngredients.size} ausgewählt" else "Alle",
+        caption = "Ingredients",
+        value = if (selectedIngredients.isNotEmpty()) "${selectedIngredients.size} selected" else "All",
         icon = Res.drawable.ic_filter_alt,
         expanded = expanded,
         highlighted = selectedIngredients.isNotEmpty(),
@@ -44,7 +44,7 @@ fun IngredientFilterDropdown(
     ) {
         DropdownMenuRow {
             Text(
-                "Rezepte anzeigen, die diese Zutaten verwenden",
+                "Show recipes that use these ingredients",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
@@ -56,7 +56,7 @@ fun IngredientFilterDropdown(
                 ) {
                     Icon(
                         painterResource(Res.drawable.ic_refresh),
-                        contentDescription = "Zurücksetzen",
+                        contentDescription = "Reset",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(Dimens.iconSizeSmall),
                     )

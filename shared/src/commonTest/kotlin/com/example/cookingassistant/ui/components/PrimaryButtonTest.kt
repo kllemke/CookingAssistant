@@ -20,11 +20,11 @@ class PrimaryButtonTest : BaseComposeTest() {
         var clicks = 0
         setContent {
             CookingAssistantTheme {
-                PrimaryButton(text = "Speichern", onClick = { clicks++ }, testTag = "primary")
+                PrimaryButton(text = "Save", onClick = { clicks++ }, testTag = "primary")
             }
         }
 
-        onNodeWithText("Speichern").assertExists()
+        onNodeWithText("Save").assertExists()
         onNodeWithTag("primary").assertHeightIsEqualTo(58.dp).performClick()
 
         assertEquals(1, clicks)

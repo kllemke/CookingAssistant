@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 private enum class RecipeListMenu { INGREDIENTS, SORT }
 
 class RecipeListScreen : AppScreen {
-    override val config = MutableStateFlow(ScreenConfig(title = "Rezepte"))
+    override val config = MutableStateFlow(ScreenConfig(title = "Recipes"))
 
     @Composable
     override fun Content() {
@@ -90,14 +90,14 @@ class RecipeListScreen : AppScreen {
                     if (state.allRecipes.isEmpty()) {
                         item {
                             Text(
-                                text = "Keine Rezepte gefunden",
+                                text = "No recipes found",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     } else if (visibleRecipes.isEmpty()) {
                         item {
                             Text(
-                                text = "Keine Rezepte für diesen Filter",
+                                text = "No recipes for this filter",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }

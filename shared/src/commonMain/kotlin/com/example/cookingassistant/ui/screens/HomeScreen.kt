@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class HomeScreen: AppScreen {
     override val config = MutableStateFlow(
-        ScreenConfig(title = "Zutaten hinzufügen", showSettingsButton = true)
+        ScreenConfig(title = "Add ingredients", showSettingsButton = true)
     )
 
     @Composable
@@ -30,7 +30,7 @@ class HomeScreen: AppScreen {
             verticalArrangement = Arrangement.spacedBy(Dimens.tileGapVertical)
         ) {
             HomeScreenButton(
-                text = "manuell eingeben",
+                text = "Enter manually",
                 icon = Res.drawable.add_text,
                 onClick = {
                     navigator.push(IngredientsScreen())
@@ -41,7 +41,7 @@ class HomeScreen: AppScreen {
                     .testTag("to_enter_manually")
             )
             HomeScreenButton(
-                text = "Foto aufnehmen",
+                text = "Take photo",
                 icon = Res.drawable.add_photo,
                 onClick = {
                     navigator.push(CameraScreen())

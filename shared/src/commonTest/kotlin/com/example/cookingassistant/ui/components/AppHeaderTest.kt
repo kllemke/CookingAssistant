@@ -17,11 +17,11 @@ class AppHeaderTest : BaseComposeTest() {
     fun rendersTitle() = runComposeUiTest {
         setContent {
             CookingAssistantTheme {
-                AppHeader(title = "Rezept-Assistent")
+                AppHeader(title = "Recipe Assistant")
             }
         }
 
-        onNodeWithText("Rezept-Assistent").assertExists()
+        onNodeWithText("Recipe Assistant").assertExists()
     }
 
     @Test
@@ -30,7 +30,7 @@ class AppHeaderTest : BaseComposeTest() {
         setContent {
             CookingAssistantTheme {
                 AppHeader(
-                    title = "Kochen",
+                    title = "Cooking",
                     showSettingsButton = true,
                     onSettingsClick = { clicks++ },
                 )

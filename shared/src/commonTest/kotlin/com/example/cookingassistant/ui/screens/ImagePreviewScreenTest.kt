@@ -53,7 +53,7 @@ class ImagePreviewScreenTest : BaseComposeTest() {
     fun usesStandardChrome() {
         val screen = ImagePreviewScreen(imagePath = "test.jpg")
 
-        assertEquals("Foto überprüfen", screen.config.value.title)
+        assertEquals("Check photo", screen.config.value.title)
         assertTrue(screen.config.value.showBottomBar)
     }
 
