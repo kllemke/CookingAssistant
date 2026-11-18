@@ -23,6 +23,8 @@ voyager = "2.2.21-1.10.3"
 robolectric = "4.17"
 camerax = "1.4.2"
 androidx-concurrent-futures = "1.1.0"
+mediapipeTasksVision = "1.2.2"
+litertRuntime = "2.3.2"
 # What camera version do we need?
 #camerax = "1.6.2"
 mokoPermissions = "0.20.1"
@@ -70,6 +72,8 @@ androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
 androidx-camera-video = { module = "androidx.camera:camera-video", version.ref = "camerax" }
 androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "camerax" }
+mediapipe-tasks-vision = { module = "com.google.mediapipe:tasks-vision", version.ref = "mediapipeTasksVision" }
+litert = { module = "com.google.ai.edge.litert:litert", version.ref = "litertRuntime" }
 moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "mokoPermissions" }
 moko-permissions-camera = { module = "dev.icerock.moko:permissions-camera", version.ref = "mokoPermissions" }
 moko-permissions-gallery = { module = "dev.icerock.moko:permissions-gallery", version.ref = "mokoPermissions" }

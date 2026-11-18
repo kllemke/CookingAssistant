@@ -55,6 +55,12 @@ kotlin {
             implementation(libs.androidx.camera.video)
             implementation(libs.androidx.camera.extensions)
 
+            /// On-device object detection (MediaPipe Tasks Vision)
+            implementation(libs.mediapipe.tasks.vision)
+
+            /// Raw LiteRT runtime (YOLO adapter)
+            implementation(libs.litert)
+
             /// Concurrent Futures KTX (for .await() support)
             implementation(libs.androidx.concurrent.futures.ktx)
 
