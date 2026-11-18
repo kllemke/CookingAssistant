@@ -12,6 +12,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import com.example.cookingassistant.data.repository.RecipeRepository
 import com.example.cookingassistant.di.AppContainer
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ml.NormalizedDetection
 import com.example.cookingassistant.ui.theme.CookingAssistantTheme
 import dev.mokkery.mock
 import okio.FileSystem
@@ -85,4 +86,59 @@ class ImagePreviewScreenTest : BaseComposeTest() {
         assertTrue(navigator.lastItem is HomeScreen, "Clicking retake should pop back to the home screen")
         assertFalse(FileSystem.SYSTEM.exists(imagePath), "Clicking retake should delete the discarded image")
     }
+
+    @Test
+    fun showsDetectionOverlayWhenDetectionsWereCaptured() = runComposeUiTest {
+        setTestContent {
+            Navigator(
+                ImagePreviewScreen(
+                    imagePath = imagePath.toString(),
+                    detections = listOf(detection("Tomate", 0.9f)),
+                )
+            )
+        }
+
+        onNodeWithTag("preview_detection_overlay").assertExists()
+    }
+
+    @Test
+    fun confirmNavigatesToIngredientsPrefilledWithDetectedLabels() = runComposeUiTest {
+        lateinit var navigator: Navigator
+        val detections = listOf(
+            detection("Tomate", 0.9f),
+            detection("Tomate", 0.8f),
+            detection("Gurke", 0.7f),
+        )
+
+        setTestContent {
+            Navigator(
+                listOf(
+                    HomeScreen(),
+                    ImagePreviewScreen(imagePath = imagePath.toString(), detections = detections),
+                )
+            ) { nav ->
+                navigator = nav
+                CurrentScreen()
+            }
+        }
+
+        onNodeWithTag("image_preview_confirm").performClick()
+
+        val screen = navigator.lastItem
+        assertTrue(screen is IngredientsScreen, "Confirm should open the ingredients screen")
+        assertEquals(
+            "Tomate\nGurke",
+            (screen as IngredientsScreen).initialText,
+            "Detected labels should be prefilled one per line, without duplicates",
+        )
+    }
+
+    private fun detection(label: String, score: Float) = NormalizedDetection(
+        label = label,
+        score = score,
+        left = 0.1f,
+        top = 0.1f,
+        right = 0.5f,
+        bottom = 0.5f,
+    )
 }

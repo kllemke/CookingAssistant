@@ -1,26 +1,42 @@
 package com.example.cookingassistant.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.ui.components.CameraView
+import com.example.cookingassistant.ui.components.DEFAULT_CONFIDENCE_THRESHOLD
 import com.example.cookingassistant.ui.components.PrimaryButton
 import com.example.cookingassistant.ui.theme.Dimens
 import dev.icerock.moko.permissions.DeniedAlwaysException
@@ -34,14 +50,19 @@ import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
-class CameraScreen: AppScreen {
+class CameraScreen : AppScreen {
     override val config = MutableStateFlow(ScreenConfig(title = "Zutaten fotografieren"))
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val cameraPermissionHandler = rememberCameraPermissionState()
+
+        // Confidence threshold for the live detection overlay, adjustable via the FAB.
+        var confidenceThreshold by rememberSaveable { mutableFloatStateOf(DEFAULT_CONFIDENCE_THRESHOLD) }
+        var showDetectionSettings by rememberSaveable { mutableStateOf(false) }
 
         LaunchedEffect(cameraPermissionHandler.permissionState) {
             val granted = cameraPermissionHandler.permissionState == PermissionState.Granted
@@ -62,11 +83,15 @@ class CameraScreen: AppScreen {
             when (cameraPermissionHandler.permissionState) {
                 PermissionState.Granted -> {
                     CameraView(
-                        onImageCaptured = { imagePath ->
+                        onImageCaptured = { photo ->
                             navigator.push(
-                                ImagePreviewScreen(imagePath = imagePath)
+                                ImagePreviewScreen(
+                                    imagePath = photo.path,
+                                    detections = photo.detections,
+                                )
                             )
-                        }
+                        },
+                        confidenceThreshold = confidenceThreshold,
                     )
                 }
                 PermissionState.DeniedAlways -> {
@@ -96,8 +121,105 @@ class CameraScreen: AppScreen {
                     )
                 }
             }
+
+            if (cameraPermissionHandler.permissionState == PermissionState.Granted) {
+                FloatingActionButton(
+                    onClick = { showDetectionSettings = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .navigationBarsPadding()
+                        .padding(end = Dimens.spacingMedium, bottom = Dimens.spacingMedium)
+                        .testTag("detection_settings_fab"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Tune,
+                        contentDescription = "Erkennungseinstellungen",
+                    )
+                }
+            }
+        }
+
+        if (showDetectionSettings) {
+            DetectionSettingsSheet(
+                threshold = confidenceThreshold,
+                onThresholdChange = { confidenceThreshold = it },
+                onDismiss = { showDetectionSettings = false },
+            )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DetectionSettingsSheet(
+    threshold: Float,
+    onThresholdChange: (Float) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.testTag("detection_settings_sheet"),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = "Erkennungseinstellungen",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Konfidenzschwelle",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = formatThreshold(threshold),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.testTag("confidence_value"),
+                )
+            }
+            Slider(
+                value = threshold,
+                onValueChange = { raw ->
+                    val stepped = (raw * 10f).roundToInt() / 10f
+                    onThresholdChange(stepped.coerceIn(0.1f, 0.9f))
+                },
+                valueRange = 0.1f..0.9f,
+                steps = 7,
+                modifier = Modifier.testTag("confidence_slider"),
+            )
+            Text(
+                text = "Nur erkannte Objekte ab dieser Wahrscheinlichkeit werden angezeigt.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            PrimaryButton(
+                text = "Fertig",
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                testTag = "detection_settings_done",
+            )
+        }
+    }
+}
+
+/** Formats 0.5f as "0.50" without relying on JVM-only String.format. */
+private fun formatThreshold(value: Float): String {
+    val hundredths = (value * 100f).roundToInt()
+    val whole = hundredths / 100
+    val fraction = (hundredths % 100).toString().padStart(2, '0')
+    return "$whole.$fraction"
 }
 
 @Composable
@@ -149,6 +271,6 @@ class CameraPermissionHandler(
 
 @Preview
 @Composable
-fun PreviewCameraScreen(){
+fun PreviewCameraScreen() {
     CameraScreen().Content()
 }

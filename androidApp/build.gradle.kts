@@ -24,6 +24,7 @@ dependencies {
     androidTestImplementation(libs.compose.uiTestJunit4)
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.test.runner)
 }
 
 configurations.all {
@@ -65,5 +66,9 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    androidResources {
+        // MediaPipe reads the model straight from assets; keep it uncompressed.
+        noCompress += listOf("tflite", "task", "litertlm")
     }
 }
