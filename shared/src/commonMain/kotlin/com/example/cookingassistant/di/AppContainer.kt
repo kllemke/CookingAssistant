@@ -6,6 +6,7 @@ import com.example.cookingassistant.data.repository.RecipeRepository
 import com.example.cookingassistant.data.repository.RecipeRepositoryImpl
 import com.example.cookingassistant.ui.screenmodel.ImagePreviewScreenModel
 import com.example.cookingassistant.ui.screenmodel.RecipeScreenModel
+import com.example.cookingassistant.ui.screenmodel.SettingsScreenModel
 
 class AppContainer (
     repository: RecipeRepository? = null
@@ -15,5 +16,5 @@ class AppContainer (
     private val recipeRepository = repository ?: RecipeRepositoryImpl(recipeApi)
     val recipeScreenModel = RecipeScreenModel(recipeRepository)
     val imagePreviewScreenModel = ImagePreviewScreenModel()
-
+    val settingsScreenModel = SettingsScreenModel()
 }
