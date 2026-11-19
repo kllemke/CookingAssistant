@@ -42,7 +42,7 @@ class HomeScreenTest : BaseComposeTest() {
 
         onNodeWithContentDescription("Settings").performClick()
 
-        onNodeWithText("Einstellungen").assertExists()
+        onNodeWithText("Settings").assertExists()
         onNodeWithTag("bottom_bar").assertExists()
     }
 }

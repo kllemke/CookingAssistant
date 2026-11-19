@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CameraScreen: AppScreen {
-    override val config = MutableStateFlow(ScreenConfig(title = "Zutaten fotografieren"))
+    override val config = MutableStateFlow(ScreenConfig(title = "Take photo of ingredients"))
 
     @Composable
     override fun Content() {
@@ -72,13 +72,13 @@ class CameraScreen: AppScreen {
                 PermissionState.DeniedAlways -> {
                     // Send to app settings when permission was permanently denied
                     Text(
-                        text = "Kamerazugriff erforderlich. Bitte in den Einstellungen aktivieren.",
+                        text = "Camera access required. Please enable it in the settings.",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center)
                     )
                     PrimaryButton(
-                        text = "Einstellungen öffnen",
+                        text = "Open settings",
                         onClick = { cameraPermissionHandler.openAppSettings() },
                         modifier = Modifier.align(Alignment.BottomCenter),
                         testTag = "open_settings"
@@ -89,7 +89,7 @@ class CameraScreen: AppScreen {
                 PermissionState.NotDetermined -> {
                     // Permission not granted yet
                     PrimaryButton(
-                        text = "Kamerazugriff erlauben",
+                        text = "Allow camera access",
                         onClick = { cameraPermissionHandler.requestPermission() },
                         modifier = Modifier.align(Alignment.Center),
                         testTag = "grant_camera_permission"

@@ -95,7 +95,7 @@ actual fun CameraView(
         if (hasCameraError) {
             Box(contentAlignment = Alignment.Center){
                 Text(
-                    "Kamera Fehler: Kamera konnte nicht initialisiert werden.",
+                    "Camera error: Camera could not be initialized.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error,
                 )

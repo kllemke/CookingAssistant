@@ -41,13 +41,13 @@ class IngredientScreenTest : BaseComposeTest() {
             }
         }
 
-        // Überprüfen, ob der initiale Text vorhanden ist
-        onNodeWithTag("zutaten_input").assertTextContains("Tomaten")
+        // Check that the initial text is present
+        onNodeWithTag("ingredients_input").assertTextContains("Tomaten")
 
-        // Neuen Text eingeben
-        onNodeWithTag("zutaten_input").performTextInput(" und Gurken")
+        // Enter new text
+        onNodeWithTag("ingredients_input").performTextInput(" und Gurken")
 
-        // Überprüfen, ob der Callback aufgerufen wurde
+        // Check that the callback was invoked
         assertTrue(capturedText.contains("Gurken"))
     }
 
@@ -66,7 +66,7 @@ class IngredientScreenTest : BaseComposeTest() {
             }
         }
 
-        onNodeWithTag("save_button").assertTextContains("Speichern")
+        onNodeWithTag("save_button").assertTextContains("Save")
     }
 
     @Test

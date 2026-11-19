@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 // Pass imagePath in the constructor
 data class ImagePreviewScreen(val imagePath: String) : AppScreen {
-    override val config = MutableStateFlow(ScreenConfig(title = "Foto überprüfen"))
+    override val config = MutableStateFlow(ScreenConfig(title = "Check photo"))
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -62,7 +62,7 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
             ) {
                 // Retake / Back Button
                 SecondaryButton(
-                    text = "Erneut",
+                    text = "Retake",
                     onClick = {
                         navigator.pop()
                         screenModel.removeDiscardedImage(imagePath)
@@ -73,7 +73,7 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
 
                 // Confirm Button
                 PrimaryButton(
-                    text = "Bestätigen",
+                    text = "Confirm",
                     onClick = {
                         // TODO: save `imagePath` to the local directory if needed
                     },

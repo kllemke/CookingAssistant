@@ -55,7 +55,7 @@ fun RecipeListItem(recipe: Recipe) {
         ) {
             AsyncImage(
                 model = recipe.image,
-                contentDescription = "Bild von ${recipe.title}",
+                contentDescription = "Image of ${recipe.title}",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(Dimens.recipeImageSize)
@@ -94,7 +94,7 @@ fun RecipeListItem(recipe: Recipe) {
                 }
                 if (remaining > 0) {
                     Text(
-                        "und $remaining weitere",
+                        "and $remaining more",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 22.dp)
@@ -103,7 +103,7 @@ fun RecipeListItem(recipe: Recipe) {
             }
             Icon(
                 painterResource(Res.drawable.ic_chevron_right),
-                contentDescription = "rezept öffnen",
+                contentDescription = "Open recipe",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Dimens.iconSizeExtraLarge).align(Alignment.CenterVertically)
             )

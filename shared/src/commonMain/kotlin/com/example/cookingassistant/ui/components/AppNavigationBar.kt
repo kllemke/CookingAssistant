@@ -70,10 +70,10 @@ fun AppNavigationBar(
                         else
                             Res.drawable.ic_home_outlined
                     ),
-                    contentDescription = "Startseite"
+                    contentDescription = "Home"
                 )
             },
-            label = { Text("Startseite") },
+            label = { Text("Home") },
             colors = navigationItemColors(),
             modifier = Modifier.testTag("nav_home"),
         )
@@ -92,10 +92,10 @@ fun AppNavigationBar(
                         else
                             Res.drawable.ic_restaurant_outlined
                     ),
-                    contentDescription = "Zutaten",
+                    contentDescription = "Ingredients",
                 )
             },
-            label = { Text("Zutaten") },
+            label = { Text("Ingredients") },
             colors = navigationItemColors(),
             modifier = Modifier.testTag("nav_ingredients"),
         )
@@ -114,9 +114,9 @@ fun AppNavigationBar(
                         else
                             Res.drawable.ic_receipt_outlined
                     ),
-                    contentDescription = "Rezepte")
+                    contentDescription = "Recipes")
                    },
-            label = { Text("Rezepte") },
+            label = { Text("Recipes") },
             colors = navigationItemColors(),
             modifier = Modifier.testTag("nav_recipes"),
         )
