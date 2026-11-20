@@ -30,6 +30,7 @@ androidx-concurrent = "1.2.0"
 coil = "3.6.3"
 okio = "3.18.2"
 kotlin-logging = "8.0.4"
+datastore = "1.1.7"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -83,6 +84,7 @@ mokkery-runtime = { module = "dev.mokkery:mokkery-runtime", version.ref = "mokke
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging"}
 
 [plugins]

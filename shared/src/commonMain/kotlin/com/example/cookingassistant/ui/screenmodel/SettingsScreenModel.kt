@@ -1,20 +1,35 @@
 package com.example.cookingassistant.ui.screenmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import com.example.cookingassistant.data.local.InMemoryPersonStorage
+import com.example.cookingassistant.data.local.PersonStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Person(
     val name: String,
     val included: Boolean = true,
     val intolerances: List<String> = emptyList(),
 )
 
-class SettingsScreenModel : ScreenModel {
+class SettingsScreenModel(
+    private val storage: PersonStorage = InMemoryPersonStorage(),
+) : ScreenModel {
     private val _persons = MutableStateFlow<List<Person>>(emptyList())
     val persons: StateFlow<List<Person>> = _persons.asStateFlow()
+
+    init {
+        screenModelScope.launch {
+            _persons.update { storage.load() }
+            _persons.collect { storage.save(it) } // Persists every change
+        }
+    }
 
     fun getNameError(name: String, currentName: String? = null): String? {
         val trimmed = name.trim()
