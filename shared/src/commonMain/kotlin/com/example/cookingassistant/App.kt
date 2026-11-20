@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
+import com.example.cookingassistant.data.local.InMemoryPersonStorage
+import com.example.cookingassistant.data.local.PersonStorage
 import com.example.cookingassistant.di.AppContainer
 import com.example.cookingassistant.di.LocalAppContainer
 import com.example.cookingassistant.ui.components.ScreenBlueprint
@@ -18,9 +20,12 @@ import com.example.cookingassistant.ui.theme.CookingAssistantTheme
 
 @Composable
 @Preview
-fun App(start: AppScreen = HomeScreen()) {
+fun App(
+    start: AppScreen = HomeScreen(),
+    personStorage: PersonStorage = InMemoryPersonStorage(),
+) {
     val appContainer = remember {
-        AppContainer()
+        AppContainer(personStorage = personStorage)
     }
 
     CompositionLocalProvider(
