@@ -74,7 +74,7 @@ class IngredientScreenTest : BaseComposeTest() {
         val repository = mock<RecipeRepository>()
 
         everySuspend {
-            repository.getRecipes(listOf("tomato", "potato"))
+            repository.getRecipes(listOf("tomato", "potato"), emptyList(), emptyList())
         } returns Result.success(emptyList())
 
         val container = AppContainer(repository)
@@ -95,7 +95,9 @@ class IngredientScreenTest : BaseComposeTest() {
 
         verifySuspend {
             repository.getRecipes(
-                listOf("tomato", "potato")
+                listOf("tomato", "potato"),
+                emptyList(),
+                emptyList()
             )
         }
 

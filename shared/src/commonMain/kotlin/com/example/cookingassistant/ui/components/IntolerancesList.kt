@@ -23,30 +23,28 @@ import androidx.compose.ui.semantics.Role
 import com.example.cookingassistant.ui.screenmodel.Person
 import com.example.cookingassistant.ui.theme.Dimens
 
-val Intolerances = listOf(
-    // Diets
-    "Vegan",
+// All available diets see: https://spoonacular.com/food-api/docs#Diets
+val Diets = listOf(
     "Vegetarian",
-    "Pescatarian",
-    "No pork",
-    "No alcohol",
-    // Intolerances
-    "Gluten",
-    "Lactose",
-    "Fructose",
-    "Histamine",
-    // Allergies
+    "Vegan",
+    "Pescetarian",
+    "Gluten Free",
+)
+
+// All available Intolerances see: https://spoonacular.com/food-api/docs#Intolerances
+val Intolerances = listOf(
+    "Dairy",
     "Egg",
-    "Fish",
-    "Shellfish",
+    "Gluten",
+    "Grain",
     "Peanut",
-    "Nut",
-    "Soy",
+    "Seafood",
     "Sesame",
-    "Celery",
-    "Mustard",
-    "Sulphites",
-    "Lupin",
+    "Shellfish",
+    "Soy",
+    "Sulfite",
+    "Tree Nut",
+    "Wheat",
 )
 
 @Composable
@@ -75,7 +73,7 @@ fun IntolerancesList(
                     color = MaterialTheme.colorScheme.outline,
                 ),
         ) {
-            itemsIndexed(Intolerances) { index, intolerance ->
+            itemsIndexed(Diets + Intolerances) { index, intolerance ->
                 val checked = intolerance in selectedPerson.intolerances
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -103,7 +101,7 @@ fun IntolerancesList(
                         modifier = Modifier.padding(end = Dimens.menuRowGap),
                     )
                 }
-                if (index < Intolerances.lastIndex) {
+                if (index < (Diets + Intolerances).lastIndex) {
                     HorizontalDivider(
                         thickness = Dimens.hairlineWidth,
                         color = MaterialTheme.colorScheme.outlineVariant,
