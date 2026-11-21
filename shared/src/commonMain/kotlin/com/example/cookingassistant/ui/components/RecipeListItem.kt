@@ -22,8 +22,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.example.cookingassistant.data.remote.model.Recipe
+import com.example.cookingassistant.ui.screens.RecipeDetailScreen
 import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_check
@@ -34,6 +37,7 @@ private const val MAX_INGREDIENTS = 2
 
 @Composable
 fun RecipeListItem(recipe: Recipe) {
+    val navigator = LocalNavigator.currentOrThrow
     val remaining = recipe.missedIngredientCount + recipe.usedIngredientCount - MAX_INGREDIENTS
 
     Card (
@@ -43,8 +47,7 @@ fun RecipeListItem(recipe: Recipe) {
         ),
         border = BorderStroke(Dimens.borderWidth, MaterialTheme.colorScheme.secondary),
         onClick = {
-            // TODO: navigate to recipe details screen
-            // navigator.push(RecipeDetailScreen(recipe))
+            navigator.push(RecipeDetailScreen(recipe))
         },
     ) {
         Row(
