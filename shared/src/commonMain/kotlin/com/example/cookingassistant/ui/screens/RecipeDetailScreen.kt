@@ -29,11 +29,13 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
+import com.example.cookingassistant.data.remote.model.Nutrient
 import com.example.cookingassistant.data.remote.model.Recipe
 import com.example.cookingassistant.ui.components.SecondaryButton
 import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_check
+import cookingassistant.shared.generated.resources.ic_close
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.painterResource
 
@@ -56,7 +58,7 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
             // Recipe Image
             AsyncImage(
                 model = recipe.image,
-                contentDescription = "Bild von ${recipe.title}",
+                contentDescription = "Image of ${recipe.title}",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -66,25 +68,6 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                     .border(Dimens.hairlineWidth, MaterialTheme.colorScheme.outlineVariant)
                     .testTag("recipe_detail_image")
             )
-
-            // Title & Description / Summary
-            Column(
-                verticalArrangement = Arrangement.spacedBy(Dimens.spacingExtraSmall)
-            ) {
-                Text(
-                    text = recipe.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.testTag("recipe_detail_title")
-                )
-                if (!recipe.summary.isNullOrBlank()) {
-                    Text(
-                        text = recipe.summary,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
 
             // Meta Info: Time & Servings
             Row(
@@ -100,8 +83,8 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                         modifier = Modifier.padding(Dimens.spacingSmall),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Zubereitungszeit", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${recipe.readyInMinutes ?: 30} Min", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                        Text("Preparation time", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${recipe.readyInMinutes} min", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                     }
                 }
                 Card(
@@ -113,8 +96,8 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                         modifier = Modifier.padding(Dimens.spacingSmall),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Portionen", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${recipe.servings ?: 4} Portionen", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                        Text("Servings", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${recipe.servings} servings", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -124,7 +107,7 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                 verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
             ) {
                 Text(
-                    text = "Nährwertangaben (pro Portion)",
+                    text = "Nutrition facts (per serving)",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -140,10 +123,10 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                             .padding(Dimens.spacingSmall),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        NutritionItem("Kalorien", "${recipe.calories ?: 350} kcal")
-                        NutritionItem("Protein", recipe.protein ?: "15g")
-                        NutritionItem("Kohlenh.", recipe.carbs ?: "45g")
-                        NutritionItem("Fett", recipe.fat ?: "12g")
+                        NutritionItem("Calories", recipe.nutrition.nutrients)
+                        NutritionItem("Protein", recipe.nutrition.nutrients)
+                        NutritionItem("Carbs", recipe.nutrition.nutrients, "Carbohydrates")
+                        NutritionItem("Fat", recipe.nutrition.nutrients)
                     }
                 }
             }
@@ -153,7 +136,7 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                 verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
             ) {
                 Text(
-                    text = "Zutaten",
+                    text = "Ingredients",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -171,18 +154,20 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                     ) {
                         val allIngredients = recipe.usedIngredients + recipe.missedIngredients
                         if (allIngredients.isEmpty()) {
-                            Text("Keine Zutaten angegeben", style = MaterialTheme.typography.bodyLarge)
+                            Text("No ingredients listed", style = MaterialTheme.typography.bodyLarge)
                         } else {
+                            val missedIds = recipe.missedIngredients.map { it.id }.toSet()
                             for (ingredient in allIngredients) {
+                                val isMissing = ingredient.id in missedIds
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Icon(
-                                        painterResource(Res.drawable.ic_check),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
+                                        painterResource(if (isMissing) Res.drawable.ic_close else Res.drawable.ic_check),
+                                        contentDescription = if (isMissing) "missing" else "available",
+                                        tint = if (isMissing) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(Dimens.iconSizeSmall)
                                     )
                                     Text(
@@ -201,7 +186,7 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                 verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
             ) {
                 Text(
-                    text = "Zubereitungsschritte",
+                    text = "Preparation steps",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -217,16 +202,10 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                             .padding(Dimens.spacingSmall),
                         verticalArrangement = Arrangement.spacedBy(Dimens.spacingSmall)
                     ) {
-                        val steps = if (!recipe.instructions.isNullOrBlank()) {
-                            recipe.instructions.split("\n").filter { it.isNotBlank() }
-                        } else {
-                            listOf(
-                                "Zutaten vorbereiten und bereitstellen.",
-                                "Alle verwendeten Zutaten in einer Schüssel oder Pfanne sorgfältig kombinieren.",
-                                "Nach Geschmack würzen und entsprechend der Zubereitungsart garen oder anrichten.",
-                                "Heiß servieren und genießen!"
-                            )
-                        }
+                        val steps: List<String> = recipe.analyzedInstructions
+                            .flatMap { it.steps }
+                            .map { it.step }
+
                         steps.forEachIndexed { index, step ->
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(Dimens.spacingSmall),
@@ -250,7 +229,7 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
 
             // Back Button
             SecondaryButton(
-                text = "Zurück zur Rezeptliste",
+                text = "Back to recipe list",
                 onClick = { navigator.pop() },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -261,13 +240,18 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
     }
 }
 
+fun getAmountOfNutrition(nutrients: List<Nutrient>, name: String): String? {
+    val nutrient = nutrients.firstOrNull { it.name.equals(name, ignoreCase = true) }
+    if (nutrient != null) return "${ nutrient.amount } ${ nutrient.unit }"
+    return null
+}
+
 @Composable
-private fun NutritionItem(label: String, value: String, modifier: Modifier = Modifier) {
+private fun NutritionItem(label: String, nutrients: List<Nutrient>, alternativeName: String? = null) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
     ) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+        Text(text = getAmountOfNutrition(nutrients, alternativeName ?: label) ?: "-", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
     }
 }

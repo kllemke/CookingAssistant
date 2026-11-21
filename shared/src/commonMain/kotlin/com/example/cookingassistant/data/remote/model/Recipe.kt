@@ -17,10 +17,8 @@ data class Recipe(
     val usedIngredients: List<Ingredient>,
     val summary: String? = null,
     val instructions: String? = null,
-    val readyInMinutes: Int? = 30,
-    val servings: Int? = 4,
-    val calories: Int? = 350,
-    val protein: String? = "15g",
-    val carbs: String? = "45g",
-    val fat: String? = "12g"
+    val readyInMinutes: Int? = null,
+    val servings: Int? = null,
+    val nutrition: Nutrition,
+    val analyzedInstructions: List<AnalyzedInstruction> = emptyList(),
 )
