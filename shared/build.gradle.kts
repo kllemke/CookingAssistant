@@ -61,6 +61,9 @@ kotlin {
             /// Raw LiteRT runtime (YOLO adapter)
             implementation(libs.litert)
 
+            /// GPU accelerator for the CompiledModel API (bundles libLiteRtClGlAccelerator.so)
+            implementation(libs.litert.gpu)
+
             /// Concurrent Futures KTX (for .await() support)
             implementation(libs.androidx.concurrent.futures.ktx)
 
