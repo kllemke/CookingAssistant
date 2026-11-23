@@ -8,34 +8,31 @@ import android.graphics.Paint
 import android.os.SystemClock
 import android.util.Log
 import androidx.camera.core.ImageProxy
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import org.tensorflow.lite.DataType
-import org.tensorflow.lite.Interpreter
+import com.google.ai.edge.litert.Accelerator
+import com.google.ai.edge.litert.CompiledModel
+import com.google.ai.edge.litert.TensorBuffer
+import com.google.ai.edge.litert.TensorType
 import java.io.ByteArrayInputStream
-import java.io.FileInputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
 import java.util.zip.ZipInputStream
 import kotlin.math.roundToInt
 
 /**
- * Raw LiteRT (TFLite Interpreter) detector for Ultralytics YOLO exports.
+ * Raw LiteRT (CompiledModel) detector for Ultralytics YOLO exports.
  *
  * Runs the model exactly as exported by `yolo export format="litert"`:
  * NCHW float32 input scaled to 0..1, either a raw `(1, 4+classes, anchors)`
  * output or the NMS-free `(1, max_det, 6)` layout. Letterbox preprocessing,
  * decoding and NMS live in [YoloOutputDecoder] so they stay unit-testable.
  *
- * CPU-only on LiteRT v2's Interpreter API; GPU/NPU would use CompiledModel.
+ * Tensor shapes come from the model's `serving_default` signature when the
+ * runtime exposes them, with a metadata-derived fallback ([YoloShapeHints]).
+ * CPU or GPU via LiteRT's CompiledModel API; the runtime falls back to CPU
+ * automatically when the requested accelerator cannot run an op.
  */
 class LiteRTYoloDetector(
     context: Context,
     private val modelAsset: String = MODEL_ASSET,
+    private val accelerator: Accelerator = Accelerator.CPU,
     private val scoreThreshold: Float = INTERNAL_SCORE_FLOOR,
     private val iouThreshold: Float = IOU_THRESHOLD,
     private val maxResults: Int = DEFAULT_MAX_RESULTS,
@@ -44,18 +41,19 @@ class LiteRTYoloDetector(
     private val appContext = context.applicationContext
 
     @Volatile
-    private var interpreter: Interpreter? = null
+    private var model: CompiledModel? = null
 
+    private var inputBuffers: List<TensorBuffer>? = null
+    private var outputBuffers: List<TensorBuffer>? = null
     private var inputWidth = 0
     private var inputHeight = 0
-    private var outputShape = IntArray(0)
+    private var outputShape: IntArray? = null
+    private var outputShapeErrorReported = false
     private var outputLayout = YoloOutputLayout.AUTO
     private var labels: List<String> = emptyList()
 
     // Per-frame buffers, reused on the single analyzer thread.
-    private var inputBuffer: ByteBuffer? = null
-    private var outputBuffer: ByteBuffer? = null
-    private var outputValues: FloatArray? = null
+    private var inputFloats: FloatArray? = null
     private var pixelBuffer: IntArray? = null
     private var letterboxBitmap: Bitmap? = null
     private val letterboxPaint = Paint(Paint.FILTER_BITMAP_FLAG)
@@ -68,78 +66,70 @@ class LiteRTYoloDetector(
 
     override fun setup(): Boolean {
         clear()
+        var localModel: CompiledModel? = null
         return try {
-            val model = loadModel(appContext, modelAsset)
-            val localInterpreter = Interpreter(
-                model,
-                Interpreter.Options().setNumThreads(NUM_THREADS),
+            val metadata = loadMetadata(appContext, modelAsset)
+            localModel = CompiledModel.create(
+                appContext.assets,
+                modelAsset,
+                optionsFor(accelerator),
             )
-            val inputShape = localInterpreter.getInputTensor(0).shape()
-            val localOutputShape = localInterpreter.getOutputTensor(0).shape()
-            require(inputShape.size == 4) {
-                "Expected NCHW input, got ${inputShape.contentToString()}"
-            }
-            require(localInterpreter.getInputTensor(0).dataType() == DataType.FLOAT32) {
-                "Expected float32 input"
-            }
-            require(localInterpreter.getOutputTensor(0).dataType() == DataType.FLOAT32) {
-                "Expected float32 output"
-            }
+            val (inputShape, localOutputShape) = resolveShapes(localModel, metadata)
 
             val localInputHeight = inputShape[2]
             val localInputWidth = inputShape[3]
-            val outputElements = localOutputShape.fold(1) { total, value -> total * value }
-
-            inputBuffer = ByteBuffer
-                .allocateDirect(localInputWidth * localInputHeight * 3 * 4)
-                .order(ByteOrder.nativeOrder())
-            outputBuffer = ByteBuffer
-                .allocateDirect(outputElements * 4)
-                .order(ByteOrder.nativeOrder())
-            outputValues = FloatArray(outputElements)
-            pixelBuffer = IntArray(localInputWidth * localInputHeight)
-            letterboxBitmap = Bitmap.createBitmap(
-                localInputWidth,
-                localInputHeight,
-                Bitmap.Config.ARGB_8888,
-            )
+            val localInputBuffers = localModel.createInputBuffers()
+            val localOutputBuffers = localModel.createOutputBuffers()
 
             inputWidth = localInputWidth
             inputHeight = localInputHeight
             outputShape = localOutputShape
-            val metadata = loadMetadata(appContext, modelAsset)
+            outputShapeErrorReported = false
             labels = metadata.labels
             outputLayout = if (metadata.endToEnd) {
                 YoloOutputLayout.NMS_FREE
             } else {
                 YoloOutputLayout.RAW
             }
-            interpreter = localInterpreter
+            inputBuffers = localInputBuffers
+            outputBuffers = localOutputBuffers
+            inputFloats = FloatArray(3 * localInputWidth * localInputHeight)
+            pixelBuffer = IntArray(localInputWidth * localInputHeight)
+            letterboxBitmap = Bitmap.createBitmap(
+                localInputWidth,
+                localInputHeight,
+                Bitmap.Config.ARGB_8888,
+            )
+            model = localModel
 
             Log.i(
                 TAG,
-                "YOLO LiteRT ready: input=${inputShape.contentToString()} " +
-                    "output=${localOutputShape.contentToString()} layout=$outputLayout " +
-                    "labels=${labels.size}",
+                "YOLO LiteRT ready: accelerator=$accelerator " +
+                    "input=${inputShape.contentToString()} " +
+                    "output=${localOutputShape?.contentToString() ?: "unknown until first run"} " +
+                    "layout=$outputLayout labels=${labels.size}",
             )
             true
         } catch (e: Exception) {
+            localModel?.close()
             Log.e(TAG, "YOLO LiteRT failed to initialise", e)
             onError?.invoke(
                 "YOLO-Erkennung konnte nicht geladen werden: " +
-                    (e.message ?: "unbekannter Fehler")
+                    (e.message ?: "unbekannter Fehler"),
             )
             false
         }
     }
 
     override fun clear() {
-        interpreter?.close()
-        interpreter = null
+        model?.close()
+        model = null
+        inputBuffers = null
+        outputBuffers = null
     }
 
     override fun detect(imageProxy: ImageProxy) {
-        val current = interpreter
+        val current = model
         if (current == null) {
             imageProxy.close()
             return
@@ -152,68 +142,144 @@ class LiteRTYoloDetector(
 
     /** Runs one still-image inference; used by on-device tests. */
     fun detectBitmap(bitmap: Bitmap): DetectionFrame? {
-        val current = interpreter ?: return null
+        val current = model ?: return null
         return runInference(current, bitmap)
     }
 
-    private fun runInference(current: Interpreter, bitmap: Bitmap): DetectionFrame? {
-        val input = inputBuffer ?: return null
-        val output = outputBuffer ?: return null
-        val values = outputValues ?: return null
-        val pixels = pixelBuffer ?: return null
-        val letterboxed = letterboxBitmap ?: return null
-
-        val transform = YoloOutputDecoder.letterbox(
-            sourceWidth = bitmap.width,
-            sourceHeight = bitmap.height,
-            inputWidth = inputWidth,
-            inputHeight = inputHeight,
-        )
-        fillLetterbox(bitmap, letterboxed, transform)
-        letterboxed.getPixels(pixels, 0, inputWidth, 0, 0, inputWidth, inputHeight)
-
-        // NCHW: three float planes, RGB, 0..1.
-        input.rewind()
-        val planeSize = inputWidth * inputHeight
-        for (index in 0 until planeSize) {
-            input.putFloat(((pixels[index] shr 16) and 0xFF) / 255f)
+    /**
+     * Resolves the input/output tensor shapes: from the model's
+     * `serving_default` signature when the runtime exposes it, otherwise the
+     * input from the embedded metadata (and the output lazily after the
+     * first inference, see [reportOutputShape]).
+     */
+    private fun resolveShapes(
+        localModel: CompiledModel,
+        metadata: YoloMetadata,
+    ): Pair<IntArray, IntArray?> {
+        val inputType = runCatching {
+            localModel.getInputTensorType(INPUT_TENSOR_NAME, SIGNATURE_NAME)
+        }.getOrNull()
+        if (inputType != null) {
+            require(inputType.elementType == TensorType.ElementType.FLOAT) {
+                "Expected float32 input"
+            }
         }
-        for (index in 0 until planeSize) {
-            input.putFloat(((pixels[index] shr 8) and 0xFF) / 255f)
+        val inputShape = inputType?.layout?.dimensions?.toIntArray()
+            ?: YoloShapeHints.inputShape(metadata.imgsz)
+            ?: error("Eingabegröße weder aus dem Modell noch aus den Metadaten ermittelbar")
+        require(inputShape.size == 4) {
+            "Expected NCHW input, got ${inputShape.contentToString()}"
         }
-        for (index in 0 until planeSize) {
-            input.putFloat((pixels[index] and 0xFF) / 255f)
+
+        val outputType = runCatching {
+            localModel.getOutputTensorType(OUTPUT_TENSOR_NAME, SIGNATURE_NAME)
+        }.getOrNull()
+        if (outputType != null) {
+            require(outputType.elementType == TensorType.ElementType.FLOAT) {
+                "Expected float32 output"
+            }
         }
-        input.rewind()
-        output.rewind()
+        return inputShape to outputType?.layout?.dimensions?.toIntArray()
+    }
 
-        val start = SystemClock.uptimeMillis()
-        current.run(input, output)
-        val elapsed = SystemClock.uptimeMillis() - start
+    private fun runInference(current: CompiledModel, bitmap: Bitmap): DetectionFrame? {
+        return runCatching {
+            val input = inputFloats ?: return null
+            val inputs = inputBuffers ?: return null
+            val outputs = outputBuffers ?: return null
+            val pixels = pixelBuffer ?: return null
+            val letterboxed = letterboxBitmap ?: return null
 
-        output.rewind()
-        output.asFloatBuffer().get(values)
+            val transform = YoloOutputDecoder.letterbox(
+                sourceWidth = bitmap.width,
+                sourceHeight = bitmap.height,
+                inputWidth = inputWidth,
+                inputHeight = inputHeight,
+            )
+            fillLetterbox(bitmap, letterboxed, transform)
+            letterboxed.getPixels(pixels, 0, inputWidth, 0, 0, inputWidth, inputHeight)
 
-        val objects = YoloOutputDecoder.decode(
-            output = values,
-            outputShape = outputShape,
-            labels = labels,
-            scoreThreshold = scoreThreshold,
-            iouThreshold = iouThreshold,
-            maxResults = maxResults,
-            transform = transform,
-            sourceWidth = bitmap.width,
-            sourceHeight = bitmap.height,
-            inputWidth = inputWidth,
-            inputHeight = inputHeight,
-            layout = outputLayout,
+            // NCHW: three float planes, RGB, 0..1.
+            val planeSize = inputWidth * inputHeight
+            var offset = 0
+            for (index in 0 until planeSize) {
+                input[offset + index] = ((pixels[index] shr 16) and 0xFF) / 255f
+            }
+            offset += planeSize
+            for (index in 0 until planeSize) {
+                input[offset + index] = ((pixels[index] shr 8) and 0xFF) / 255f
+            }
+            offset += planeSize
+            for (index in 0 until planeSize) {
+                input[offset + index] = (pixels[index] and 0xFF) / 255f
+            }
+
+            inputs[0].writeFloat(input)
+
+            val start = SystemClock.uptimeMillis()
+            current.run(inputs, outputs, 0)
+            val elapsed = SystemClock.uptimeMillis() - start
+
+            val values = outputs[0].readFloat()
+            val shape = reportOutputShape(values.size) ?: return null
+
+            val objects = YoloOutputDecoder.decode(
+                output = values,
+                outputShape = shape,
+                labels = labels,
+                scoreThreshold = scoreThreshold,
+                iouThreshold = iouThreshold,
+                maxResults = maxResults,
+                transform = transform,
+                sourceWidth = bitmap.width,
+                sourceHeight = bitmap.height,
+                inputWidth = inputWidth,
+                inputHeight = inputHeight,
+                layout = outputLayout,
+            )
+            DetectionFrame(
+                objects = objects,
+                inferenceTimeMs = elapsed,
+                imageWidth = bitmap.width,
+                imageHeight = bitmap.height,
+            )
+        }.onFailure { e ->
+            Log.e(TAG, "YOLO inference failed", e)
+            onError?.invoke(
+                "YOLO-Erkennung fehlgeschlagen: " + (e.message ?: "unbekannter Fehler"),
+            )
+        }.getOrNull()
+    }
+
+    /**
+     * Returns the output shape, deriving it from the first inference's value
+     * count when the runtime did not expose it. Reports once (in German) and
+     * skips the frame when the numbers do not fit either export layout.
+     */
+    private fun reportOutputShape(valuesSize: Int): IntArray? {
+        outputShape?.let { return it }
+        val derived = YoloShapeHints.outputShape(
+            valuesSize = valuesSize,
+            labelCount = labels.size,
+            endToEnd = outputLayout == YoloOutputLayout.NMS_FREE,
         )
-        return DetectionFrame(
-            objects = objects,
-            inferenceTimeMs = elapsed,
-            imageWidth = bitmap.width,
-            imageHeight = bitmap.height,
-        )
+        if (derived == null) {
+            if (!outputShapeErrorReported) {
+                outputShapeErrorReported = true
+                Log.e(
+                    TAG,
+                    "Cannot derive YOLO output shape: values=$valuesSize " +
+                        "labels=${labels.size} layout=$outputLayout",
+                )
+                onError?.invoke(
+                    "YOLO-Ausgabeformat konnte nicht erkannt werden " +
+                        "(${labels.size} Klassen, $valuesSize Werte)",
+                )
+            }
+            return null
+        }
+        outputShape = derived
+        return derived
     }
 
     /** Draws the source image onto a grey 114-padded square canvas. */
@@ -247,14 +313,17 @@ class LiteRTYoloDetector(
         private const val NUM_THREADS = 4
         private const val TAG = "LiteRTYoloDetector"
 
-        private fun loadModel(context: Context, asset: String): MappedByteBuffer =
-            context.assets.openFd(asset).use { descriptor ->
-                FileInputStream(descriptor.fileDescriptor).channel.use { channel ->
-                    channel.map(
-                        FileChannel.MapMode.READ_ONLY,
-                        descriptor.startOffset,
-                        descriptor.declaredLength,
-                    )
+        /** Ultralytics exports carry one `serving_default` signature. */
+        private const val SIGNATURE_NAME = "serving_default"
+        private const val INPUT_TENSOR_NAME = "serving_default_args_0"
+        private const val OUTPUT_TENSOR_NAME = "output_0"
+
+        private val EMPTY_METADATA = YoloMetadata(emptyList(), endToEnd = false, imgsz = null)
+
+        private fun optionsFor(accelerator: Accelerator): CompiledModel.Options =
+            CompiledModel.Options(accelerator).also { options ->
+                if (accelerator == Accelerator.CPU) {
+                    options.cpuOptions = CompiledModel.CpuOptions(numThreads = NUM_THREADS)
                 }
             }
 
@@ -300,38 +369,12 @@ class LiteRTYoloDetector(
                 var entry = zip.nextEntry
                 while (entry != null) {
                     if (entry.name.endsWith("metadata.json")) {
-                        return parseMetadata(zip.readBytes().decodeToString())
+                        return YoloMetadataParser.parse(zip.readBytes().decodeToString())
                     }
                     entry = zip.nextEntry
                 }
             }
             return null
         }
-
-        private fun parseMetadata(metadataJson: String): YoloMetadata {
-            val metadata = Json.parseToJsonElement(metadataJson).jsonObject
-            val labels = metadata["names"]?.jsonObject?.let { names ->
-                val maxIndex = names.keys.maxOfOrNull { it.toIntOrNull() ?: -1 } ?: -1
-                if (maxIndex < 0) {
-                    emptyList()
-                } else {
-                    MutableList(maxIndex + 1) { "Klasse ${it + 1}" }.also { list ->
-                        names.forEach { (key, value) ->
-                            val index = key.toIntOrNull() ?: return@forEach
-                            list[index] = value.jsonPrimitive.content
-                        }
-                    }
-                }
-            } ?: emptyList()
-            val endToEnd = metadata["end2end"]?.jsonPrimitive?.booleanOrNull ?: false
-            return YoloMetadata(labels, endToEnd)
-        }
-
-        private data class YoloMetadata(
-            val labels: List<String>,
-            val endToEnd: Boolean,
-        )
-
-        private val EMPTY_METADATA = YoloMetadata(emptyList(), endToEnd = false)
     }
 }
