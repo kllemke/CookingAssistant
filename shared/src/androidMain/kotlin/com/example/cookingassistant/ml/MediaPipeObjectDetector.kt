@@ -11,16 +11,20 @@ import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetector
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Wraps MediaPipe Tasks' [ObjectDetector] for CameraX live-stream analysis.
  *
- * The model ships in the app's assets (currently EfficientDet-Lite0, trained on
- * COCO). Swapping in a food/ingredient model later only means replacing the
- * asset and [MODEL_ASSET] — the output contract stays [DetectionFrame].
+ * The model asset is a constructor parameter ([MODEL_ASSET] is the default), so
+ * the runtime model switcher can run any MediaPipe-compatible model — a
+ * food/ingredient export later joins the registry with no changes here. The
+ * output contract stays [DetectionFrame].
  */
 class MediaPipeObjectDetector(
     context: Context,
+    private val modelAsset: String = MODEL_ASSET,
     private val maxResults: Int = DEFAULT_MAX_RESULTS,
     private val delegate: Delegate = Delegate.CPU,
 ) : FrameDetector {
@@ -47,7 +51,7 @@ class MediaPipeObjectDetector(
         clear()
         return try {
             val baseOptions = BaseOptions.builder()
-                .setModelAssetPath(MODEL_ASSET)
+                .setModelAssetPath(modelAsset)
                 .setDelegate(delegate)
                 .build()
             val options = ObjectDetector.ObjectDetectorOptions.builder()
@@ -71,6 +75,7 @@ class MediaPipeObjectDetector(
                 }
                 .build()
             detector = ObjectDetector.createFromOptions(appContext, options)
+            Log.i(TAG, "MediaPipe object detector ready: model=$modelAsset")
             true
         } catch (e: RuntimeException) {
             Log.e(TAG, "MediaPipe object detector failed to initialise", e)
@@ -102,6 +107,38 @@ class MediaPipeObjectDetector(
         current.detectAsync(BitmapImageBuilder(upright).build(), frameTime)
     }
 
+    /**
+     * Test-support entry: submits one bitmap through the same live-stream path
+     * and blocks for its result (10 s timeout). Compatible with on-device
+     * instrumentation only — never call from the analyzer or main thread.
+     */
+    fun detectBitmap(bitmap: Bitmap): DetectionFrame? {
+        val current = detector ?: return null
+        val latch = CountDownLatch(1)
+        var result: DetectionFrame? = null
+        val previousDetection = onDetection
+        val previousError = onError
+        onDetection = { frame ->
+            result = frame
+            latch.countDown()
+            previousDetection?.invoke(frame)
+        }
+        onError = { message ->
+            latch.countDown()
+            previousError?.invoke(message)
+        }
+        return try {
+            current.detectAsync(BitmapImageBuilder(bitmap).build(), SystemClock.uptimeMillis())
+            if (latch.await(10, TimeUnit.SECONDS)) result else null
+        } catch (e: Exception) {
+            Log.e(TAG, "detectBitmap failed", e)
+            null
+        } finally {
+            onDetection = previousDetection
+            onError = previousError
+        }
+    }
+
     private fun ObjectDetectorResult.toDetectionFrame(
         inputWidth: Int,
         inputHeight: Int,
@@ -112,10 +149,13 @@ class MediaPipeObjectDetector(
             DetectedObject(
                 label = category?.categoryName()?.takeIf { it.isNotBlank() } ?: "Objekt",
                 score = category?.score() ?: 0f,
-                left = box.left,
-                top = box.top,
-                right = box.right,
-                bottom = box.bottom,
+                // MediaPipe emits boxes that can exceed the input bounds by a
+                // few pixels; clamp so every engine satisfies the same
+                // "boxes inside the source image" contract the UI and tests use.
+                left = box.left.coerceIn(0f, inputWidth.toFloat()),
+                top = box.top.coerceIn(0f, inputHeight.toFloat()),
+                right = box.right.coerceIn(0f, inputWidth.toFloat()),
+                bottom = box.bottom.coerceIn(0f, inputHeight.toFloat()),
             )
         }
         return DetectionFrame(
