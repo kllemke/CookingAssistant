@@ -38,6 +38,12 @@ val AVAILABLE_DETECTION_MODELS: List<DetectionModel> = listOf(
         assetFile = "efficientdet-lite0.tflite",
         engine = DetectionEngine.MEDIAPIPE,
     ),
+    DetectionModel(
+        id = "yolo26n-food103",
+        displayName = "YOLO26n (Lebensmittel)",
+        assetFile = "yolo26n_food103.tflite",
+        engine = DetectionEngine.LITERT,
+    ),
 )
 
 /** Model the camera opens with. */
