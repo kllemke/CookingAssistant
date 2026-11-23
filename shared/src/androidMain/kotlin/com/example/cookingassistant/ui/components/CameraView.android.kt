@@ -41,17 +41,19 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.concurrent.futures.await
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.example.cookingassistant.ml.ACTIVE_DETECTOR_BACKEND
 import com.example.cookingassistant.ml.CapturedPhoto
+import com.example.cookingassistant.ml.DetectionEngine
 import com.example.cookingassistant.ml.DetectionFrame
-import com.example.cookingassistant.ml.DetectorBackend
+import com.example.cookingassistant.ml.DetectionModel
 import com.example.cookingassistant.ml.FrameDetector
 import com.example.cookingassistant.ml.LiteRTYoloDetector
 import com.example.cookingassistant.ml.MediaPipeObjectDetector
+import com.example.cookingassistant.ml.detectionModelById
 import com.example.cookingassistant.ml.normalizedDetections
 import com.example.cookingassistant.ui.theme.CameraOverlay
 import com.example.cookingassistant.ui.theme.Dimens
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -66,7 +68,6 @@ actual fun CameraView(
     onImageCaptured: (CapturedPhoto) -> Unit,
     modifier: Modifier,
     confidenceThreshold: Float,
-    // Wired into runtime detector creation in the model-switching task.
     selectedModelId: String,
 ) {
     val context = LocalContext.current
@@ -84,16 +85,21 @@ actual fun CameraView(
     }
     val imageCapture = remember { ImageCapture.Builder().build() }
 
-    // Analysis runs on its own single thread; detection is async (LIVE_STREAM).
-    val analyzerExecutor = remember { Executors.newSingleThreadExecutor() }
-    val detectionFlow = remember { MutableStateFlow<DetectionFrame?>(null) }
-    val detectorErrorFlow = remember { MutableStateFlow<String?>(null) }
+    // The selected model; unknown ids fall back to the default (registry).
+    val model = detectionModelById(selectedModelId)
 
-    val detector: FrameDetector = remember {
-        when (ACTIVE_DETECTOR_BACKEND) {
-            DetectorBackend.MEDIAPIPE_EFFICIENTDET_LITE0 -> MediaPipeObjectDetector(context)
-            DetectorBackend.LITERT_YOLO26N -> LiteRTYoloDetector(context)
-        }.apply {
+    val detectionFlow = remember { MutableStateFlow<DetectionFrame?>(null) }
+    // Error state is per model: a switch starts with a clean slate, and a
+    // late error from the outgoing detector cannot stick to the incoming one.
+    val detectorErrorFlow = remember(model.id) { MutableStateFlow<String?>(null) }
+    var isModelLoading by remember { mutableStateOf(false) }
+
+    // Detector and its single analyzer thread live and die together per model:
+    // a switch disposes the outgoing pair (closing the detector on its own
+    // thread after unbinding) and the incoming model gets a fresh pair.
+    val analyzerExecutor = remember(model.id) { Executors.newSingleThreadExecutor() }
+    val detector: FrameDetector = remember(model.id) {
+        createDetector(context, model).apply {
             onDetection = { frame -> detectionFlow.value = frame }
             onError = { message -> detectorErrorFlow.value = message }
         }
@@ -107,18 +113,29 @@ actual fun CameraView(
     var isCapturing by remember { mutableStateOf(false) }
     var frozenFrame by remember { mutableStateOf<ImageBitmap?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(model.id) {
         val cameraProvider = cameraProviderFuture.await()
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(previewView.surfaceProvider)
 
-        // Load the model off the main thread; the preview stays usable while it loads.
-        val detectorReady = runCatching {
+        // Load the model off the main thread; the preview stays usable while
+        // it loads, and a status chip flags the switch.
+        isModelLoading = true
+        val detectorReady = try {
             withContext(analyzerExecutor.asCoroutineDispatcher()) {
                 detector.setup()
             }
-        }.getOrDefault(false)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            // Throwable, not Exception: on the JVM host (Robolectric) the
+            // native LiteRT runtime is absent and setup fails with an Error;
+            // the preview must survive that exactly like a runtime failure.
+            logger.warn(e) { "Object detector setup failed: ${e.message}" }
+            false
+        }
+        isModelLoading = false
         if (!detectorReady) {
             logger.warn { "Object detector unavailable; camera preview continues without overlay." }
         }
@@ -134,7 +151,7 @@ actual fun CameraView(
             }
 
         try {
-            // rebind the camera on composable start
+            // Rebinding also swaps the analyzer to the newly selected model.
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
                 lifeCycleOwner,
@@ -143,6 +160,7 @@ actual fun CameraView(
                 imageCapture,
                 imageAnalysis,
             )
+            hasCameraError = false
         } catch (e: Exception) {
             // No need for capturing specific exceptions here
             // catching as such prevents the app from crashing
@@ -151,8 +169,10 @@ actual fun CameraView(
         }
     }
 
-    // Clean up camera resources when leaving composition
-    DisposableEffect(Unit) {
+    // Clean up this model's detector and analyzer thread when the model
+    // changes or the screen leaves: unbind first, then clear on the same
+    // single thread so in-flight frames finish before the native model closes.
+    DisposableEffect(model.id) {
         onDispose {
             try {
                 cameraProviderFuture.get()?.unbindAll()
@@ -227,6 +247,17 @@ actual fun CameraView(
                     )
                 }
 
+                if (isModelLoading) {
+                    DetectionStatusChip(
+                        text = "Modell wird geladen…",
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .statusBarsPadding()
+                            .padding(Dimens.spacingSmall)
+                            .testTag("model_loading"),
+                    )
+                }
+
                 // Trigger button
                 CameraCaptureButton(
                     onClick = {
@@ -266,6 +297,16 @@ actual fun CameraView(
         }
     }
 }
+
+/**
+ * Maps a registry entry to the engine that runs it — the single place where
+ * the LiteRT/MediaPipe implementation detail is chosen.
+ */
+private fun createDetector(context: Context, model: DetectionModel): FrameDetector =
+    when (model.engine) {
+        DetectionEngine.LITERT -> LiteRTYoloDetector(context, modelAsset = model.assetFile)
+        DetectionEngine.MEDIAPIPE -> MediaPipeObjectDetector(context, modelAsset = model.assetFile)
+    }
 
 @Composable
 private fun DetectionStatusChip(text: String, modifier: Modifier = Modifier) {
