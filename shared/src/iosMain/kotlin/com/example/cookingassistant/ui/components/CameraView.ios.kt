@@ -9,6 +9,7 @@ actual fun CameraView(
     onImageCaptured: (CapturedPhoto) -> Unit,
     modifier: Modifier,
     confidenceThreshold: Float,
+    selectedModelId: String,
 ) {
     TODO("CameraView is not implemented for iOS")
 }

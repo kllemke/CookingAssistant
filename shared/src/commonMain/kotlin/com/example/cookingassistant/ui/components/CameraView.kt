@@ -3,6 +3,7 @@ package com.example.cookingassistant.ui.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.cookingassistant.ml.CapturedPhoto
+import com.example.cookingassistant.ml.DEFAULT_DETECTION_MODEL_ID
 
 /** Default confidence a detection must reach to be drawn on the preview. */
 const val DEFAULT_CONFIDENCE_THRESHOLD = 0.5f
@@ -12,4 +13,5 @@ expect fun CameraView(
     onImageCaptured: (CapturedPhoto) -> Unit,
     modifier: Modifier = Modifier,
     confidenceThreshold: Float = DEFAULT_CONFIDENCE_THRESHOLD,
+    selectedModelId: String = DEFAULT_DETECTION_MODEL_ID,
 )

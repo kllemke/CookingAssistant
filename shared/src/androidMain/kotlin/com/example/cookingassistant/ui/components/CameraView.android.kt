@@ -66,6 +66,8 @@ actual fun CameraView(
     onImageCaptured: (CapturedPhoto) -> Unit,
     modifier: Modifier,
     confidenceThreshold: Float,
+    // Wired into runtime detector creation in the model-switching task.
+    selectedModelId: String,
 ) {
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current

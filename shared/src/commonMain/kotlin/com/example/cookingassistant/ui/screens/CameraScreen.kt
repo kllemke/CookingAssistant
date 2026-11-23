@@ -1,5 +1,6 @@
 package com.example.cookingassistant.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.cookingassistant.ml.AVAILABLE_DETECTION_MODELS
+import com.example.cookingassistant.ml.DEFAULT_DETECTION_MODEL_ID
 import com.example.cookingassistant.ui.components.CameraView
 import com.example.cookingassistant.ui.components.DEFAULT_CONFIDENCE_THRESHOLD
 import com.example.cookingassistant.ui.components.PrimaryButton
@@ -62,6 +66,8 @@ class CameraScreen : AppScreen {
 
         // Confidence threshold for the live detection overlay, adjustable via the FAB.
         var confidenceThreshold by rememberSaveable { mutableFloatStateOf(DEFAULT_CONFIDENCE_THRESHOLD) }
+        // Selected detection model; session-persistent via saveable state.
+        var selectedModelId by rememberSaveable { mutableStateOf(DEFAULT_DETECTION_MODEL_ID) }
         var showDetectionSettings by rememberSaveable { mutableStateOf(false) }
 
         LaunchedEffect(cameraPermissionHandler.permissionState) {
@@ -92,6 +98,7 @@ class CameraScreen : AppScreen {
                             )
                         },
                         confidenceThreshold = confidenceThreshold,
+                        selectedModelId = selectedModelId,
                     )
                 }
                 PermissionState.DeniedAlways -> {
@@ -143,6 +150,8 @@ class CameraScreen : AppScreen {
             DetectionSettingsSheet(
                 threshold = confidenceThreshold,
                 onThresholdChange = { confidenceThreshold = it },
+                selectedModelId = selectedModelId,
+                onModelChange = { selectedModelId = it },
                 onDismiss = { showDetectionSettings = false },
             )
         }
@@ -154,6 +163,8 @@ class CameraScreen : AppScreen {
 private fun DetectionSettingsSheet(
     threshold: Float,
     onThresholdChange: (Float) -> Unit,
+    selectedModelId: String,
+    onModelChange: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -171,6 +182,29 @@ private fun DetectionSettingsSheet(
                 text = "Erkennungseinstellungen",
                 style = MaterialTheme.typography.titleLarge,
             )
+            Text(
+                text = "Modell",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            AVAILABLE_DETECTION_MODELS.forEach { model ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("model_option_${model.id}")
+                        .clickable { onModelChange(model.id) },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = model.id == selectedModelId,
+                        onClick = { onModelChange(model.id) },
+                    )
+                    Text(
+                        text = model.displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
