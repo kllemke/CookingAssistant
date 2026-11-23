@@ -13,6 +13,7 @@ import com.google.ai.edge.litert.CompiledModel
 import com.google.ai.edge.litert.TensorBuffer
 import com.google.ai.edge.litert.TensorType
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.util.zip.ZipInputStream
 import kotlin.math.roundToInt
 
@@ -26,13 +27,13 @@ import kotlin.math.roundToInt
  *
  * Tensor shapes come from the model's `serving_default` signature when the
  * runtime exposes them, with a metadata-derived fallback ([YoloShapeHints]).
- * CPU or GPU via LiteRT's CompiledModel API; the runtime falls back to CPU
- * automatically when the requested accelerator cannot run an op.
+ * CPU or GPU via LiteRT's CompiledModel API; GPU is the constructor default,
+ * with automatic and explicit CPU fallback.
  */
 class LiteRTYoloDetector(
     context: Context,
     private val modelAsset: String = MODEL_ASSET,
-    private val accelerator: Accelerator = Accelerator.CPU,
+    private val accelerator: Accelerator = Accelerator.GPU,
     private val scoreThreshold: Float = INTERNAL_SCORE_FLOOR,
     private val iouThreshold: Float = IOU_THRESHOLD,
     private val maxResults: Int = DEFAULT_MAX_RESULTS,
@@ -68,12 +69,36 @@ class LiteRTYoloDetector(
         clear()
         var localModel: CompiledModel? = null
         return try {
-            val metadata = loadMetadata(appContext, modelAsset)
-            localModel = CompiledModel.create(
-                appContext.assets,
-                modelAsset,
-                optionsFor(accelerator),
+            val assetBytes = readAsset(appContext, modelAsset)
+            val metadata = scanMetadata(assetBytes)
+            // Content-keyed: swapping the model file (same asset name) must
+            // never reuse GPU programs compiled for the old weights.
+            val cacheKey = assetBytes?.let { YoloAssetFingerprint.key(modelAsset, it) }
+                ?: modelAsset
+
+            val createStart = SystemClock.uptimeMillis()
+            var compiled = runCatching {
+                CompiledModel.create(appContext.assets, modelAsset, optionsFor(accelerator, cacheKey))
+            }
+            var effectiveAccelerator = accelerator
+            if (compiled.isFailure && accelerator == Accelerator.GPU) {
+                Log.w(TAG, "GPU create failed, falling back to CPU", compiled.exceptionOrNull())
+                effectiveAccelerator = Accelerator.CPU
+                compiled = runCatching {
+                    CompiledModel.create(
+                        appContext.assets,
+                        modelAsset,
+                        optionsFor(Accelerator.CPU, cacheKey),
+                    )
+                }
+            }
+            localModel = compiled.getOrThrow()
+            Log.i(
+                TAG,
+                "YOLO model compiled in ${SystemClock.uptimeMillis() - createStart} ms " +
+                    "(accelerator=$effectiveAccelerator, requested=$accelerator)",
             )
+
             val (inputShape, localOutputShape) = resolveShapes(localModel, metadata)
 
             val localInputHeight = inputShape[2]
@@ -104,7 +129,7 @@ class LiteRTYoloDetector(
 
             Log.i(
                 TAG,
-                "YOLO LiteRT ready: accelerator=$accelerator " +
+                "YOLO LiteRT ready: accelerator=$effectiveAccelerator " +
                     "input=${inputShape.contentToString()} " +
                     "output=${localOutputShape?.contentToString() ?: "unknown until first run"} " +
                     "layout=$outputLayout labels=${labels.size}",
@@ -145,6 +170,31 @@ class LiteRTYoloDetector(
         val current = model ?: return null
         return runInference(current, bitmap)
     }
+
+    /**
+     * Compiling options per accelerator. GPU gets a persisted program cache
+     * keyed by the asset's content fingerprint: the first launch compiles GPU
+     * programs (slow), later launches reuse the cache — and swapping the file
+     * under the same asset name produces a fresh entry. CPU keeps the
+     * XNNPACK thread count.
+     */
+    private fun optionsFor(accelerator: Accelerator, cacheKey: String): CompiledModel.Options =
+        CompiledModel.Options(accelerator).also { options ->
+            when (accelerator) {
+                Accelerator.CPU -> options.cpuOptions =
+                    CompiledModel.CpuOptions(numThreads = NUM_THREADS)
+                Accelerator.GPU -> {
+                    val gpuCacheDir = File(appContext.cacheDir, "litert_gpu_cache")
+                    gpuCacheDir.mkdirs()
+                    options.gpuOptions = CompiledModel.GpuOptions(
+                        serializeProgramCache = true,
+                        serializationDir = gpuCacheDir.absolutePath,
+                        modelCacheKey = cacheKey,
+                    )
+                }
+                else -> Unit
+            }
+        }
 
     /**
      * Resolves the input/output tensor shapes: from the model's
@@ -219,6 +269,9 @@ class LiteRTYoloDetector(
             val start = SystemClock.uptimeMillis()
             current.run(inputs, outputs, 0)
             val elapsed = SystemClock.uptimeMillis() - start
+            // Wall-clock only: lastNativeInferenceDurationNanoseconds is not in
+            // litert 2.3.2 (main-branch API); revisit on a runtime upgrade.
+            Log.d(TAG, "YOLO inference: wall=$elapsed ms")
 
             val values = outputs[0].readFloat()
             val shape = reportOutputShape(values.size) ?: return null
@@ -300,7 +353,9 @@ class LiteRTYoloDetector(
     }
 
     companion object {
-        /** Asset name; replace the file to swap in a food-specific YOLO export. */
+        /** Asset name; replace the file to swap in a food-specific YOLO
+         *  export — the GPU program cache re-keys on content, so a swap
+         *  never reuses stale compiled programs. */
         const val MODEL_ASSET = "yolo26n.tflite"
         const val DEFAULT_MAX_RESULTS = 5
 
@@ -320,23 +375,14 @@ class LiteRTYoloDetector(
 
         private val EMPTY_METADATA = YoloMetadata(emptyList(), endToEnd = false, imgsz = null)
 
-        private fun optionsFor(accelerator: Accelerator): CompiledModel.Options =
-            CompiledModel.Options(accelerator).also { options ->
-                if (accelerator == Accelerator.CPU) {
-                    options.cpuOptions = CompiledModel.CpuOptions(numThreads = NUM_THREADS)
-                }
-            }
-
         /**
          * Ultralytics appends a ZIP containing `metadata.json` (class names,
          * task, imgsz, end2end…) to the `.tflite` flatbuffer. Java's
          * ZipInputStream cannot read such a prefixed archive from byte 0, so
          * locate the first local file header and parse from there.
          */
-        private fun loadMetadata(context: Context, asset: String): YoloMetadata {
-            val bytes = runCatching {
-                context.assets.open(asset).use { it.readBytes() }
-            }.getOrNull() ?: return EMPTY_METADATA
+        private fun scanMetadata(bytes: ByteArray?): YoloMetadata {
+            if (bytes == null) return EMPTY_METADATA
 
             var searchFrom = 0
             while (searchFrom <= bytes.size - 4) {
@@ -348,6 +394,9 @@ class LiteRTYoloDetector(
             }
             return EMPTY_METADATA
         }
+
+        private fun readAsset(context: Context, asset: String): ByteArray? =
+            runCatching { context.assets.open(asset).use { it.readBytes() } }.getOrNull()
 
         private fun indexOfLocalHeader(bytes: ByteArray, from: Int): Int {
             for (index in from..bytes.size - 4) {

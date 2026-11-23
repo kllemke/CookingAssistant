@@ -25,6 +25,9 @@ dependencies {
     androidTestImplementation(libs.androidx.testExt.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.runner)
+    // The on-device YOLO test passes an Accelerator explicitly; the enum lives
+    // in the litert artifact, which shared only exposes as `implementation`.
+    androidTestImplementation(libs.litert)
 }
 
 configurations.all {

@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.cookingassistant.ml.LiteRTYoloDetector
+import com.google.ai.edge.litert.Accelerator
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -18,6 +19,20 @@ class Yolo26nDetectorTest {
 
     @Test
     fun detectsObjectsInSampleImageOnDevice() {
+        // Default constructor: GPU CompiledModel (with automatic and
+        // explicit CPU fallback), as shipped in the camera pipeline.
+        assertDetectorFindsObjects { LiteRTYoloDetector(it) }
+    }
+
+    @Test
+    fun detectsObjectsInSampleImageOnDeviceCpu() {
+        // Pins the explicit CPU path that the GPU fallback relies on.
+        assertDetectorFindsObjects { LiteRTYoloDetector(it, accelerator = Accelerator.CPU) }
+    }
+
+    private inline fun assertDetectorFindsObjects(
+        create: (android.content.Context) -> LiteRTYoloDetector,
+    ) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val appContext = instrumentation.targetContext
         val testAssets = instrumentation.context.assets
@@ -27,7 +42,7 @@ class Yolo26nDetectorTest {
         }
         assertNotNull("bus.jpg must be packaged in the test APK", bitmap)
 
-        val detector = LiteRTYoloDetector(appContext)
+        val detector = create(appContext)
         try {
             assertTrue("YOLO26n detector must initialise", detector.setup())
 
