@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.cookingassistant.data.remote.model.Ingredient
+import com.example.cookingassistant.data.remote.model.Nutrition
 import com.example.cookingassistant.data.remote.model.Recipe
 import com.example.cookingassistant.data.repository.RecipeRepository
 import com.example.cookingassistant.di.AppContainer
@@ -60,6 +61,7 @@ class RecipeListScreenTest : BaseComposeTest() {
         unusedIngredients = emptyList(),
         usedIngredientCount = used.size,
         usedIngredients = used.map(::ingredient),
+        nutrition = Nutrition()
     )
 
     private fun ingredient(name: String) = Ingredient(

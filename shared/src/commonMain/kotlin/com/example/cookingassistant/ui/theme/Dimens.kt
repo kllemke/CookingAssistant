@@ -51,4 +51,7 @@ object Dimens {
     // Camera
     val captureButtonSize: Dp = 80.dp
     val captureIconSize: Dp = 50.dp
+
+    // Recipe Details
+    val recipeDetailImageHeight: Dp = 220.dp
 }

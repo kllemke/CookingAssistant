@@ -17,6 +17,9 @@ class RecipeApi(
         return client
             .get("$BASE_URL/recipes/complexSearch") {
                 parameter("instructionsRequired", true)
+                parameter("addRecipeInformation", true)
+                parameter("addRecipeInstructions", true)
+                parameter("addRecipeNutrition", true)
                 parameter("includeIngredients", ingredients.joinToString(","))
                 parameter("fillIngredients", true)
                 parameter("sort", "max-used-ingredients")
