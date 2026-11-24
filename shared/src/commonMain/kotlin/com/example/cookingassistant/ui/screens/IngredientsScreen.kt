@@ -29,6 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ui.components.Diets
+import com.example.cookingassistant.ui.components.Intolerances
 import com.example.cookingassistant.ui.components.PrimaryButton
 import com.example.cookingassistant.ui.screenmodel.RecipeUiState
 import com.example.cookingassistant.ui.theme.Dimens
@@ -49,9 +51,12 @@ data class IngredientsScreen(
         val navigator = LocalNavigator.currentOrThrow
         val appContainer = LocalAppContainer.current
 
-        val screenModel = appContainer.recipeScreenModel
+        val recipeScreenModel = appContainer.recipeScreenModel
+        val recipeUiState by recipeScreenModel.recipeUiState.collectAsState()
 
-        val recipeUiState by screenModel.recipeUiState.collectAsState()
+        val settingsScreenModel = appContainer.settingsScreenModel
+        val persons by settingsScreenModel.persons.collectAsState()
+        val intolerancesAndDiets = persons.filter { it.included }.flatMap { it.intolerances }.distinct()
 
         var requestSent by remember { mutableStateOf(false) }
         var textState by remember { mutableStateOf(initialText) }
@@ -128,8 +133,12 @@ data class IngredientsScreen(
                 text = "Save",
                 onClick = {
                     val ingredients = textState.split("\n")
-                    screenModel.resetRecipes()
-                    screenModel.loadRecipes(ingredients)
+                    recipeScreenModel.resetRecipes()
+                    recipeScreenModel.loadRecipes(
+                        ingredients,
+                        intolerancesAndDiets.filter { it in Intolerances },
+                        intolerancesAndDiets.filter { it in Diets }
+                    )
                     requestSent = true
                 },
                 modifier = Modifier.fillMaxWidth(),

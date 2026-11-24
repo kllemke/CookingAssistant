@@ -70,7 +70,7 @@ class RecipeScreenModel(
         }
     }
 
-    fun loadRecipes(ingredients: List<String>) {
+    fun loadRecipes(ingredients: List<String>, intolerances: List<String>, diet: List<String>) {
         if (ingredients.all { it.isBlank() }) {
             _recipeUiState.value =
                 RecipeUiState.Error("Please enter at least one ingredient")
@@ -80,7 +80,7 @@ class RecipeScreenModel(
         screenModelScope.launch {
             _recipeUiState.value = RecipeUiState.Loading
 
-            val result = repository.getRecipes(ingredients)
+            val result = repository.getRecipes(ingredients, intolerances, diet)
 
             result
                 .onSuccess { recipes ->
