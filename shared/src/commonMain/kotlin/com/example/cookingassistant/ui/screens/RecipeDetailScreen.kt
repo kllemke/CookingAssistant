@@ -62,7 +62,7 @@ data class RecipeDetailScreen(val recipe: Recipe) : AppScreen {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height(Dimens.recipeDetailImageHeight)
                     .clip(MaterialTheme.shapes.small)
                     .background(MaterialTheme.colorScheme.secondary)
                     .border(Dimens.hairlineWidth, MaterialTheme.colorScheme.outlineVariant)
