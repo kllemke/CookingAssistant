@@ -18,7 +18,7 @@ class SecondaryButtonTest : BaseComposeTest() {
         setContent {
             CookingAssistantTheme {
                 SecondaryButton(
-                    text = "Erneut",
+                    text = "Retake",
                     onClick = { clicks++ },
                     enabled = false,
                     testTag = "secondary"

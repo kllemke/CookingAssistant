@@ -35,7 +35,7 @@ object YoloMetadataParser {
             if (maxIndex < 0) {
                 emptyList()
             } else {
-                MutableList(maxIndex + 1) { "Klasse ${it + 1}" }.also { list ->
+                MutableList(maxIndex + 1) { "Class ${it + 1}" }.also { list ->
                     names.forEach { (key, value) ->
                         val index = key.toIntOrNull() ?: return@forEach
                         list[index] = value.jsonPrimitive.content

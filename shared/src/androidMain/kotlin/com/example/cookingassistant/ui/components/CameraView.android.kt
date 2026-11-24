@@ -195,7 +195,7 @@ actual fun CameraView(
         if (hasCameraError) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    "Kamera Fehler: Kamera konnte nicht initialisiert werden.",
+                    "Camera error: Camera could not be initialized.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -227,7 +227,7 @@ actual fun CameraView(
                         modifier = Modifier.fillMaxSize(),
                     )
                     DetectionStatusChip(
-                        text = "${frame.visibleObjects(confidenceThreshold).size} Objekte · ${frame.inferenceTimeMs} ms",
+                        text = "${frame.visibleObjects(confidenceThreshold).size} objects · ${frame.inferenceTimeMs} ms",
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .statusBarsPadding()
@@ -249,7 +249,7 @@ actual fun CameraView(
 
                 if (isModelLoading) {
                     DetectionStatusChip(
-                        text = "Modell wird geladen…",
+                        text = "Loading model…",
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .statusBarsPadding()

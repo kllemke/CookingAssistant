@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.cookingassistant.data.remote.model.Ingredient
+import com.example.cookingassistant.data.remote.model.Nutrition
 import com.example.cookingassistant.data.remote.model.Recipe
 import com.example.cookingassistant.data.repository.RecipeRepository
 import com.example.cookingassistant.di.AppContainer
@@ -31,11 +32,11 @@ import kotlin.test.Test
 class RecipeListScreenTest : BaseComposeTest() {
     private fun ComposeUiTest.showRecipeScreen(recipes: List<Recipe>) {
         val repository = mock<RecipeRepository>()
-        everySuspend { repository.getRecipes(any()) } returns Result.success(recipes)
+        everySuspend { repository.getRecipes(any(), any(), any()) } returns Result.success(recipes)
 
         val container = AppContainer(repository)
         val screenModel = container.recipeScreenModel
-        screenModel.loadRecipes(listOf("tomato"))
+        screenModel.loadRecipes(listOf("tomato"), emptyList(), emptyList())
 
         setContent {
             CompositionLocalProvider(LocalAppContainer provides container) {
@@ -60,6 +61,7 @@ class RecipeListScreenTest : BaseComposeTest() {
         unusedIngredients = emptyList(),
         usedIngredientCount = used.size,
         usedIngredients = used.map(::ingredient),
+        nutrition = Nutrition()
     )
 
     private fun ingredient(name: String) = Ingredient(
@@ -86,25 +88,25 @@ class RecipeListScreenTest : BaseComposeTest() {
 
         onNodeWithText("Pizza").assertIsDisplayed()
         onNodeWithText("Salad").assertIsDisplayed()
-        onNodeWithText("Zutaten").assert(hasText("Alle"))
+        onNodeWithText("Ingredients").assert(hasText("All"))
     }
 
     @Test
     fun showsHintWhenNoRecipesFound() = runComposeUiTest {
         showRecipeScreen(emptyList())
 
-        onNodeWithText("Keine Rezepte gefunden").assertIsDisplayed()
+        onNodeWithText("No recipes found").assertIsDisplayed()
     }
 
     @Test
     fun showsHintWhenFilterMatchesNoRecipe() = runComposeUiTest {
         showRecipeScreen(listOf(pizza, salad))
 
-        onNodeWithText("Zutaten").performClick()
+        onNodeWithText("Ingredients").performClick()
         menuEntry("cheese").performClick()
         menuEntry("cucumber").performClick()
 
-        onNodeWithText("Keine Rezepte für diesen Filter").assertExists()
+        onNodeWithText("No recipes for this filter").assertExists()
         onNodeWithText("Pizza").assertDoesNotExist()
         onNodeWithText("Salad").assertDoesNotExist()
     }
@@ -113,25 +115,25 @@ class RecipeListScreenTest : BaseComposeTest() {
     fun ingredientFilterHidesRecipesWithoutThatIngredient() = runComposeUiTest {
         showRecipeScreen(listOf(pizza, salad))
 
-        onNodeWithText("Zutaten").performClick()
+        onNodeWithText("Ingredients").performClick()
         menuEntry("cheese").performClick()
 
         onNodeWithText("Pizza").assertExists()
         onNodeWithText("Salad").assertDoesNotExist()
-        onNodeWithText("Zutaten").assert(hasText("1 ausgewählt"))
+        onNodeWithText("Ingredients").assert(hasText("1 selected"))
     }
 
     @Test
     fun resetShowsAllRecipesAgain() = runComposeUiTest {
         showRecipeScreen(listOf(pizza, salad))
 
-        onNodeWithText("Zutaten").performClick()
+        onNodeWithText("Ingredients").performClick()
         menuEntry("cheese").performClick()
-        onNodeWithContentDescription("Zurücksetzen").performClick()
+        onNodeWithContentDescription("Reset").performClick()
 
         onNodeWithText("Pizza").assertExists()
         onNodeWithText("Salad").assertExists()
-        onNodeWithText("Zutaten").assert(hasText("Alle"))
+        onNodeWithText("Ingredients").assert(hasText("All"))
     }
 
     @Test
@@ -140,11 +142,11 @@ class RecipeListScreenTest : BaseComposeTest() {
 
         onNodeWithTag("recipes_list").onChildAt(0).assert(hasText("Pizza"))
 
-        onNodeWithText("Sortierung").performClick()
-        menuEntry("Wenigste fehlende Zutaten").performClick()
+        onNodeWithText("Sort by").performClick()
+        menuEntry("Fewest missing ingredients").performClick()
 
         onNodeWithTag("recipes_list").onChildAt(0).assert(hasText("Salad"))
-        onNodeWithText("Sortierung").assert(hasText("Wenigste fehlende Zutaten"))
+        onNodeWithText("Sort by").assert(hasText("Fewest missing ingredients"))
     }
 
     @Test
@@ -152,9 +154,9 @@ class RecipeListScreenTest : BaseComposeTest() {
         val pasta = recipe(id = 3, title = "Pasta", used = listOf("tomato"), missedCount = 1)
         showRecipeScreen(listOf(pizza, salad, pasta))
 
-        onNodeWithText("Sortierung").performClick()
-        menuEntry("Wenigste fehlende Zutaten").performClick()
-        onNodeWithText("Zutaten").performClick()
+        onNodeWithText("Sort by").performClick()
+        menuEntry("Fewest missing ingredients").performClick()
+        onNodeWithText("Ingredients").performClick()
         menuEntry("tomato").performClick()
 
         val list = onNodeWithTag("recipes_list")

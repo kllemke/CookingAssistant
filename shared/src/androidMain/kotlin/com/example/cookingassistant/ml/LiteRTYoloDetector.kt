@@ -139,8 +139,8 @@ class LiteRTYoloDetector(
             localModel?.close()
             Log.e(TAG, "YOLO LiteRT failed to initialise", e)
             onError?.invoke(
-                "YOLO-Erkennung konnte nicht geladen werden: " +
-                    (e.message ?: "unbekannter Fehler"),
+                "YOLO detection could not be loaded: " +
+                    (e.message ?: "unknown error"),
             )
             false
         }
@@ -216,7 +216,7 @@ class LiteRTYoloDetector(
         }
         val inputShape = inputType?.layout?.dimensions?.toIntArray()
             ?: YoloShapeHints.inputShape(metadata.imgsz)
-            ?: error("Eingabegröße weder aus dem Modell noch aus den Metadaten ermittelbar")
+            ?: error("Cannot derive the input size from the model or its metadata")
         require(inputShape.size == 4) {
             "Expected NCHW input, got ${inputShape.contentToString()}"
         }
@@ -299,7 +299,7 @@ class LiteRTYoloDetector(
         }.onFailure { e ->
             Log.e(TAG, "YOLO inference failed", e)
             onError?.invoke(
-                "YOLO-Erkennung fehlgeschlagen: " + (e.message ?: "unbekannter Fehler"),
+                "YOLO detection failed: " + (e.message ?: "unknown error"),
             )
         }.getOrNull()
     }
@@ -325,8 +325,8 @@ class LiteRTYoloDetector(
                         "labels=${labels.size} layout=$outputLayout",
                 )
                 onError?.invoke(
-                    "YOLO-Ausgabeformat konnte nicht erkannt werden " +
-                        "(${labels.size} Klassen, $valuesSize Werte)",
+                    "Could not determine the YOLO output format " +
+                        "(${labels.size} classes, $valuesSize values)",
                 )
             }
             return null

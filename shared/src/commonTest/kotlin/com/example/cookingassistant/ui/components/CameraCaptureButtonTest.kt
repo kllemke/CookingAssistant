@@ -38,6 +38,6 @@ class CameraCaptureButtonTest : BaseComposeTest() {
         }
 
         onNodeWithTag("capture_photo").assertHeightIsEqualTo(Dimens.captureButtonSize)
-        onNodeWithContentDescription("Foto aufnehmen").assertExists()
+        onNodeWithContentDescription("Take photo").assertExists()
     }
 }

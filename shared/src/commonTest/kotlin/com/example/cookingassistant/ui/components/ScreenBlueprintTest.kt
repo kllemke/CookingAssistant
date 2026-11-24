@@ -27,14 +27,14 @@ class ScreenBlueprintTest : BaseComposeTest() {
         setContent {
             CookingAssistantTheme {
                 ScreenBlueprint(
-                    config = ScreenConfig(title = "Zutaten hinzufügen", showBottomBar = false),
+                    config = ScreenConfig(title = "Add ingredients", showBottomBar = false),
                 ) {
-                    Text("Inhalt", modifier = Modifier.testTag("blueprint_content"))
+                    Text("Content", modifier = Modifier.testTag("blueprint_content"))
                 }
             }
         }
 
-        onNodeWithText("Zutaten hinzufügen").assertExists()
+        onNodeWithText("Add ingredients").assertExists()
         onNodeWithTag("blueprint_content").assertExists()
     }
 
@@ -45,7 +45,7 @@ class ScreenBlueprintTest : BaseComposeTest() {
                 Navigator(HomeScreen()) { navigator ->
                     ScreenBlueprint(
                         config = ScreenConfig(
-                            title = "Zutaten hinzufügen",
+                            title = "Add ingredients",
                             layout = ScreenLayout.EdgeToEdge,
                             showBottomBar = true,
                         ),
@@ -57,7 +57,7 @@ class ScreenBlueprintTest : BaseComposeTest() {
             }
         }
 
-        onNodeWithText("Zutaten hinzufügen").assertDoesNotExist()
+        onNodeWithText("Add ingredients").assertDoesNotExist()
         onNodeWithTag("bottom_bar").assertDoesNotExist()
         // Edge-to-edge content must span the full width: no screenPadding gutter.
         // (Status-bar insets are zero under Robolectric, so only the gutter is provable here.)

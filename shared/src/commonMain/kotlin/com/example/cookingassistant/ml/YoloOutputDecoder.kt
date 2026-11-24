@@ -205,7 +205,7 @@ object YoloOutputDecoder {
     }
 
     private fun labelFor(classIndex: Int, labels: List<String>): String =
-        labels.getOrNull(classIndex) ?: "Klasse ${classIndex + 1}"
+        labels.getOrNull(classIndex) ?: "Class ${classIndex + 1}"
 
     /** Maps a box from letterboxed input pixels to clamped source pixels. */
     private fun toSourceBox(

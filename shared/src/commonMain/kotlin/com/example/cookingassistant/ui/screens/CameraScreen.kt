@@ -56,8 +56,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-class CameraScreen : AppScreen {
-    override val config = MutableStateFlow(ScreenConfig(title = "Zutaten fotografieren"))
+class CameraScreen: AppScreen {
+    override val config = MutableStateFlow(ScreenConfig(title = "Take photo of ingredients"))
 
     @Composable
     override fun Content() {
@@ -104,13 +104,13 @@ class CameraScreen : AppScreen {
                 PermissionState.DeniedAlways -> {
                     // Send to app settings when permission was permanently denied
                     Text(
-                        text = "Kamerazugriff erforderlich. Bitte in den Einstellungen aktivieren.",
+                        text = "Camera access required. Please enable it in the settings.",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center)
                     )
                     PrimaryButton(
-                        text = "Einstellungen öffnen",
+                        text = "Open settings",
                         onClick = { cameraPermissionHandler.openAppSettings() },
                         modifier = Modifier.align(Alignment.BottomCenter),
                         testTag = "open_settings"
@@ -121,7 +121,7 @@ class CameraScreen : AppScreen {
                 PermissionState.NotDetermined -> {
                     // Permission not granted yet
                     PrimaryButton(
-                        text = "Kamerazugriff erlauben",
+                        text = "Allow camera access",
                         onClick = { cameraPermissionHandler.requestPermission() },
                         modifier = Modifier.align(Alignment.Center),
                         testTag = "grant_camera_permission"
@@ -140,7 +140,7 @@ class CameraScreen : AppScreen {
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Tune,
-                        contentDescription = "Erkennungseinstellungen",
+                        contentDescription = "Detection settings",
                     )
                 }
             }
@@ -179,11 +179,11 @@ private fun DetectionSettingsSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = "Erkennungseinstellungen",
+                text = "Detection settings",
                 style = MaterialTheme.typography.titleLarge,
             )
             Text(
-                text = "Modell",
+                text = "Model",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -211,7 +211,7 @@ private fun DetectionSettingsSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Konfidenzschwelle",
+                    text = "Confidence threshold",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -234,12 +234,12 @@ private fun DetectionSettingsSheet(
                 modifier = Modifier.testTag("confidence_slider"),
             )
             Text(
-                text = "Nur erkannte Objekte ab dieser Wahrscheinlichkeit werden angezeigt.",
+                text = "Only detected objects at or above this probability are shown.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             PrimaryButton(
-                text = "Fertig",
+                text = "Done",
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(),
                 testTag = "detection_settings_done",

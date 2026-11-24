@@ -57,7 +57,7 @@ class EfficientDetDetectorTest {
             )
             assertTrue(
                 "All labels must be non-blank COCO names",
-                frame.objects.all { it.label.isNotBlank() && !it.label.startsWith("Klasse ") },
+                frame.objects.all { it.label.isNotBlank() && !it.label.startsWith("Class ") },
             )
             assertTrue(
                 "Boxes must be inside the source image",

@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 enum class RecipeSort(val label: String) {
-    BEST_MATCH("Beste Übereinstimmung"),
-    FEWEST_MISSING("Wenigste fehlende Zutaten"),
+    BEST_MATCH("Best match"),
+    FEWEST_MISSING("Fewest missing ingredients"),
 }
 
 sealed interface RecipeUiState {
@@ -70,17 +70,17 @@ class RecipeScreenModel(
         }
     }
 
-    fun loadRecipes(ingredients: List<String>) {
+    fun loadRecipes(ingredients: List<String>, intolerances: List<String>, diet: List<String>) {
         if (ingredients.all { it.isBlank() }) {
             _recipeUiState.value =
-                RecipeUiState.Error("Bitte gib mindestens eine Zutat ein")
+                RecipeUiState.Error("Please enter at least one ingredient")
             return
         }
 
         screenModelScope.launch {
             _recipeUiState.value = RecipeUiState.Loading
 
-            val result = repository.getRecipes(ingredients)
+            val result = repository.getRecipes(ingredients, intolerances, diet)
 
             result
                 .onSuccess { recipes ->

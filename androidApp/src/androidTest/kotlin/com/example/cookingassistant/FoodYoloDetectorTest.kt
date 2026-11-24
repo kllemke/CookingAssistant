@@ -70,7 +70,7 @@ class FoodYoloDetectorTest {
             )
             assertTrue(
                 "All labels must be non-blank real class names",
-                frame.objects.all { it.label.isNotBlank() && !it.label.startsWith("Klasse ") },
+                frame.objects.all { it.label.isNotBlank() && !it.label.startsWith("Class ") },
             )
         } finally {
             detector.clear()

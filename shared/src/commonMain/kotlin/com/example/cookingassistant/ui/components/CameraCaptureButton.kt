@@ -39,7 +39,7 @@ fun CameraCaptureButton(
     ) {
         Icon(
             imageVector = Icons.Default.Camera,
-            contentDescription = "Foto aufnehmen",
+            contentDescription = "Take photo",
             modifier = Modifier.size(Dimens.captureIconSize),
         )
     }

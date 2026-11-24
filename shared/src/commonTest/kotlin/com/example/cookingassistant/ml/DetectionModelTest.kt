@@ -50,6 +50,6 @@ class DetectionModelTest {
         val food = AVAILABLE_DETECTION_MODELS.first { it.id == "yolo26n-food103" }
         assertEquals("yolo26n_food103.tflite", food.assetFile)
         assertEquals(DetectionEngine.LITERT, food.engine)
-        assertEquals("YOLO26n (Lebensmittel)", food.displayName)
+        assertEquals("YOLO26n (Ingredients)", food.displayName)
     }
 }

@@ -30,7 +30,7 @@ data class ImagePreviewScreen(
     val imagePath: String,
     val detections: List<NormalizedDetection> = emptyList(),
 ) : AppScreen {
-    override val config = MutableStateFlow(ScreenConfig(title = "Foto überprüfen"))
+    override val config = MutableStateFlow(ScreenConfig(title = "Check photo"))
 
     @Composable
     override fun Content() {
@@ -78,7 +78,7 @@ data class ImagePreviewScreen(
             ) {
                 // Retake / Back Button
                 SecondaryButton(
-                    text = "Erneut",
+                    text = "Retake",
                     onClick = {
                         navigator.pop()
                         screenModel.removeDiscardedImage(imagePath)
@@ -89,7 +89,7 @@ data class ImagePreviewScreen(
 
                 // Confirm Button
                 PrimaryButton(
-                    text = "Bestätigen",
+                    text = "Confirm",
                     onClick = {
                         navigator.push(
                             IngredientsScreen(

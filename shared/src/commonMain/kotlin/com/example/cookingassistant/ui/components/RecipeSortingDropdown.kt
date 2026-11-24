@@ -25,7 +25,7 @@ fun RecipeSortingDropdown(
     modifier: Modifier = Modifier,
 ) {
     Dropdown(
-        caption = "Sortierung",
+        caption = "Sort by",
         value = selected.label,
         icon = Res.drawable.ic_swap_vert,
         expanded = expanded,

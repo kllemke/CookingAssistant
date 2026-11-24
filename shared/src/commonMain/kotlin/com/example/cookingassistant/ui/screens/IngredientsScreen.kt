@@ -29,6 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ui.components.Diets
+import com.example.cookingassistant.ui.components.Intolerances
 import com.example.cookingassistant.ui.components.PrimaryButton
 import com.example.cookingassistant.ui.screenmodel.RecipeUiState
 import com.example.cookingassistant.ui.theme.Dimens
@@ -43,15 +45,18 @@ data class IngredientsScreen(
     val painter: Painter? = null,
     val onTextChange: (String) -> Unit = {}
 ): AppScreen  {
-    override val config = MutableStateFlow(ScreenConfig(title = "Zutaten bearbeiten"))
+    override val config = MutableStateFlow(ScreenConfig(title = "Edit ingredients"))
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val appContainer = LocalAppContainer.current
 
-        val screenModel = appContainer.recipeScreenModel
+        val recipeScreenModel = appContainer.recipeScreenModel
+        val recipeUiState by recipeScreenModel.recipeUiState.collectAsState()
 
-        val recipeUiState by screenModel.recipeUiState.collectAsState()
+        val settingsScreenModel = appContainer.settingsScreenModel
+        val persons by settingsScreenModel.persons.collectAsState()
+        val intolerancesAndDiets = persons.filter { it.included }.flatMap { it.intolerances }.distinct()
 
         var requestSent by remember { mutableStateOf(false) }
         var textState by remember { mutableStateOf(initialText) }
@@ -73,7 +78,7 @@ data class IngredientsScreen(
             painter?.let {
                 Image(
                     painter = it,
-                    contentDescription = "Bild der Zutat",
+                    contentDescription = "image of ingredient",
                     modifier = Modifier
                         .size(Dimens.imagePlaceholder)
                         .padding(bottom = Dimens.spacingMedium)
@@ -86,7 +91,7 @@ data class IngredientsScreen(
                     textState = it
                     onTextChange(it)
                 },
-                label = { Text("Zutaten eingeben") },
+                label = { Text("Enter ingredients") },
                 shape = MaterialTheme.shapes.medium,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.outline,
@@ -97,7 +102,7 @@ data class IngredientsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .testTag("zutaten_input"),
+                    .testTag("ingredients_input"),
                 singleLine = false,
             )
 
@@ -111,12 +116,12 @@ data class IngredientsScreen(
                 when (val state = recipeUiState) {
                     RecipeUiState.Loading -> {
                         CircularProgressIndicator()
-                        Text("Rezepte werden abgerufen")
+                        Text("Loading recipes")
                     }
 
                     is RecipeUiState.Error -> {
                         Text(
-                            text = state.message.ifBlank { "Rezepte konnten nicht geladen werden" },
+                            text = state.message.ifBlank { "Recipes could not be loaded" },
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -125,11 +130,15 @@ data class IngredientsScreen(
                 }
             }
             PrimaryButton(
-                text = "Speichern",
+                text = "Save",
                 onClick = {
                     val ingredients = textState.split("\n")
-                    screenModel.resetRecipes()
-                    screenModel.loadRecipes(ingredients)
+                    recipeScreenModel.resetRecipes()
+                    recipeScreenModel.loadRecipes(
+                        ingredients,
+                        intolerancesAndDiets.filter { it in Intolerances },
+                        intolerancesAndDiets.filter { it in Diets }
+                    )
                     requestSent = true
                 },
                 modifier = Modifier.fillMaxWidth(),

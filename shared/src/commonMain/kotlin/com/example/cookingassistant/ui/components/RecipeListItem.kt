@@ -22,8 +22,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.example.cookingassistant.data.remote.model.Recipe
+import com.example.cookingassistant.ui.screens.RecipeDetailScreen
 import com.example.cookingassistant.ui.theme.Dimens
 import cookingassistant.shared.generated.resources.Res
 import cookingassistant.shared.generated.resources.ic_check
@@ -34,6 +37,7 @@ private const val MAX_INGREDIENTS = 2
 
 @Composable
 fun RecipeListItem(recipe: Recipe) {
+    val navigator = LocalNavigator.currentOrThrow
     val remaining = recipe.missedIngredientCount + recipe.usedIngredientCount - MAX_INGREDIENTS
 
     Card (
@@ -43,8 +47,7 @@ fun RecipeListItem(recipe: Recipe) {
         ),
         border = BorderStroke(Dimens.borderWidth, MaterialTheme.colorScheme.secondary),
         onClick = {
-            // TODO: navigate to recipe details screen
-            // navigator.push(RecipeDetailScreen(recipe))
+            navigator.push(RecipeDetailScreen(recipe))
         },
     ) {
         Row(
@@ -55,7 +58,7 @@ fun RecipeListItem(recipe: Recipe) {
         ) {
             AsyncImage(
                 model = recipe.image,
-                contentDescription = "Bild von ${recipe.title}",
+                contentDescription = "Image of ${recipe.title}",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(Dimens.recipeImageSize)
@@ -94,7 +97,7 @@ fun RecipeListItem(recipe: Recipe) {
                 }
                 if (remaining > 0) {
                     Text(
-                        "und $remaining weitere",
+                        "and $remaining more",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 22.dp)
@@ -103,7 +106,7 @@ fun RecipeListItem(recipe: Recipe) {
             }
             Icon(
                 painterResource(Res.drawable.ic_chevron_right),
-                contentDescription = "rezept öffnen",
+                contentDescription = "Open recipe",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Dimens.iconSizeExtraLarge).align(Alignment.CenterVertically)
             )

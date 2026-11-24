@@ -40,7 +40,7 @@ val AVAILABLE_DETECTION_MODELS: List<DetectionModel> = listOf(
     ),
     DetectionModel(
         id = "yolo26n-food103",
-        displayName = "YOLO26n (Lebensmittel)",
+        displayName = "YOLO26n (Ingredients)",
         assetFile = "yolo26n_food103.tflite",
         engine = DetectionEngine.LITERT,
     ),

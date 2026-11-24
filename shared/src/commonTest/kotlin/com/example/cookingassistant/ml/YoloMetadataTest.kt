@@ -50,7 +50,7 @@ class YoloMetadataTest {
             """{"names": {"0": "candy", "2": "french fries"}, "imgsz": [640, 640]}""",
         )
 
-        assertEquals(listOf("candy", "Klasse 2", "french fries"), metadata.labels)
+        assertEquals(listOf("candy", "Class 2", "french fries"), metadata.labels)
     }
 
     @Test

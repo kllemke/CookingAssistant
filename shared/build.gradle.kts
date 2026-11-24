@@ -68,6 +68,9 @@ kotlin {
             implementation(libs.androidx.concurrent.futures.ktx)
 
             implementation(libs.ktor.client.android)
+
+            /// Persistent storage
+            implementation(libs.androidx.datastore)
         }
         val androidHostTest by getting {
             dependencies {

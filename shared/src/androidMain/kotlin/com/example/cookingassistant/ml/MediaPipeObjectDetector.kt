@@ -71,7 +71,7 @@ class MediaPipeObjectDetector(
                     )
                 }
                 .setErrorListener { error ->
-                    onError?.invoke(error.message ?: "Unbekannter MediaPipe-Fehler")
+                    onError?.invoke(error.message ?: "Unknown MediaPipe error")
                 }
                 .build()
             detector = ObjectDetector.createFromOptions(appContext, options)
@@ -80,7 +80,7 @@ class MediaPipeObjectDetector(
         } catch (e: RuntimeException) {
             Log.e(TAG, "MediaPipe object detector failed to initialise", e)
             onError?.invoke(
-                "Objekterkennung konnte nicht geladen werden: ${e.message ?: "unbekannter Fehler"}"
+                "Object detection could not be loaded: ${e.message ?: "unknown error"}"
             )
             false
         }
@@ -147,7 +147,7 @@ class MediaPipeObjectDetector(
             val box = detection.boundingBox()
             val category = detection.categories().firstOrNull()
             DetectedObject(
-                label = category?.categoryName()?.takeIf { it.isNotBlank() } ?: "Objekt",
+                label = category?.categoryName()?.takeIf { it.isNotBlank() } ?: "Object",
                 score = category?.score() ?: 0f,
                 // MediaPipe emits boxes that can exceed the input bounds by a
                 // few pixels; clamp so every engine satisfies the same

@@ -119,7 +119,7 @@ private fun DropdownField(
         border = BorderStroke(Dimens.borderWidth, if (expanded || highlighted) colors.primary else colors.secondary),
         modifier = modifier
             .height(Dimens.controlHeight)
-            .semantics { stateDescription = if (expanded) "geöffnet" else "geschlossen" },
+            .semantics { stateDescription = if (expanded) "expanded" else "collapsed" },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

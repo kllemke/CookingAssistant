@@ -1,5 +1,6 @@
 package com.example.cookingassistant.data.remote.api
 
+import com.example.cookingassistant.data.remote.model.ApiResult
 import com.example.cookingassistant.data.remote.model.Recipe
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -11,12 +12,20 @@ class RecipeApi(
 ) {
     val BASE_URL = "https://api.spoonacular.com"
 
-    // API reference: https://spoonacular.com/food-api/docs#Search-Recipes-by-Ingredients
-    suspend fun getRecipes(ingredients: List<String>): List<Recipe> {
+    // API reference: https://spoonacular.com/food-api/docs#Search-Recipes-Complex
+    suspend fun getRecipes(ingredients: List<String>, intolerances: List<String>, diet: List<String>): List<Recipe> {
         return client
-            .get("$BASE_URL/recipes/findByIngredients") {
-                parameter("ingredients", ingredients.joinToString(","))
+            .get("$BASE_URL/recipes/complexSearch") {
+                parameter("instructionsRequired", true)
+                parameter("addRecipeInformation", true)
+                parameter("addRecipeInstructions", true)
+                parameter("addRecipeNutrition", true)
+                parameter("includeIngredients", ingredients.joinToString(","))
+                parameter("fillIngredients", true)
+                parameter("sort", "max-used-ingredients")
+                parameter("intolerances", intolerances.joinToString(","))
+                parameter("diet", diet.joinToString(","))
             }
-            .body<List<Recipe>>()
+            .body<ApiResult>().results
     }
 }
