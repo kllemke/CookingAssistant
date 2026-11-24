@@ -19,14 +19,19 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.example.cookingassistant.di.LocalAppContainer
+import com.example.cookingassistant.ml.NormalizedDetection
+import com.example.cookingassistant.ui.components.DetectionBoxOverlay
 import com.example.cookingassistant.ui.components.PrimaryButton
 import com.example.cookingassistant.ui.components.SecondaryButton
 import com.example.cookingassistant.ui.theme.Dimens
 import kotlinx.coroutines.flow.MutableStateFlow
 
-// Pass imagePath in the constructor
-data class ImagePreviewScreen(val imagePath: String) : AppScreen {
+data class ImagePreviewScreen(
+    val imagePath: String,
+    val detections: List<NormalizedDetection> = emptyList(),
+) : AppScreen {
     override val config = MutableStateFlow(ScreenConfig(title = "Check photo"))
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -54,6 +59,17 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                         .testTag("captured_photo"),
                     contentScale = ContentScale.FillBounds
                 )
+
+                // Detections use 0..1 coordinates, so they map directly onto the
+                // stretched photo (FillBounds).
+                if (detections.isNotEmpty()) {
+                    DetectionBoxOverlay(
+                        detections = detections,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("preview_detection_overlay"),
+                    )
+                }
             }
 
             Column(
@@ -75,7 +91,14 @@ data class ImagePreviewScreen(val imagePath: String) : AppScreen {
                 PrimaryButton(
                     text = "Confirm",
                     onClick = {
-                        // TODO: save `imagePath` to the local directory if needed
+                        navigator.push(
+                            IngredientsScreen(
+                                initialText = detections
+                                    .map { it.label }
+                                    .distinct()
+                                    .joinToString("\n")
+                            )
+                        )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     testTag = "image_preview_confirm",
