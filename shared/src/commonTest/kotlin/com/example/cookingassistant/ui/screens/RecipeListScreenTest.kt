@@ -32,11 +32,11 @@ import kotlin.test.Test
 class RecipeListScreenTest : BaseComposeTest() {
     private fun ComposeUiTest.showRecipeScreen(recipes: List<Recipe>) {
         val repository = mock<RecipeRepository>()
-        everySuspend { repository.getRecipes(any()) } returns Result.success(recipes)
+        everySuspend { repository.getRecipes(any(), any(), any()) } returns Result.success(recipes)
 
         val container = AppContainer(repository)
         val screenModel = container.recipeScreenModel
-        screenModel.loadRecipes(listOf("tomato"))
+        screenModel.loadRecipes(listOf("tomato"), emptyList(), emptyList())
 
         setContent {
             CompositionLocalProvider(LocalAppContainer provides container) {

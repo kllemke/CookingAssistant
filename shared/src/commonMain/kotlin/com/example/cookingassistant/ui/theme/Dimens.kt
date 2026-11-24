@@ -43,6 +43,11 @@ object Dimens {
     val controlInset: Dp = 12.dp
     val controlGap: Dp = 8.dp
 
+    // Settings: household person rows (name + intolerance summary)
+    val personRowHeight: Dp = 56.dp
+    val personRowLineGap: Dp = 2.dp
+    val textFieldHeight: Dp = 56.dp // Material3 OutlinedTextField minimum height
+
     // Camera
     val captureButtonSize: Dp = 80.dp
     val captureIconSize: Dp = 50.dp
